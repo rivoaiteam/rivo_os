@@ -1,0 +1,372 @@
+{
+  "_meta": {
+    "models": {
+      "clients": "A verified person who wants a mortgage. Contains identity information, self-declared financials, and documents. Permanent records that are never deleted.",
+      "documents": "Files uploaded for a client such as passport, Emirates ID, visa, salary certificate, payslips, and bank statements.",
+      "callLogs": "Records of phone calls with outcomes and notes, timestamped for history tracking.",
+      "messages": "WhatsApp messages sent to or received from the client."
+    },
+    "relationships": [
+      "Each Client has zero or more Documents (the files needed for mortgage application)",
+      "Each Client has zero or more CallLogs (phone call history)",
+      "Each Client has zero or more Messages (WhatsApp conversation history)",
+      "Clients preserve the Channel and Campaign they originated from"
+    ]
+  },
+  "clients": [
+    {
+      "id": "client-001",
+      "firstName": "Fatima",
+      "lastName": "Hassan",
+      "email": "fatima.hassan@gmail.com",
+      "phone": "+971 55 987 6543",
+      "residencyStatus": "resident",
+      "dateOfBirth": "1988-03-15",
+      "nationality": "Egyptian",
+      "employmentStatus": "employed",
+      "monthlySalary": 45000,
+      "monthlyLiabilities": 8500,
+      "loanAmount": 2000000,
+      "estimatedPropertyValue": 2500000,
+      "eligibilityStatus": "eligible",
+      "estimatedDBR": 42,
+      "estimatedLTV": 80,
+      "maxLoanAmount": 2000000,
+      "eligibleBanks": ["Emirates NBD", "ADCB", "Mashreq"],
+      "createdAt": "2025-12-28T06:30:00Z",
+      "source": {
+        "channel": "Google",
+        "campaign": "Q1_HomeLoans_2024"
+      },
+      "documents": [
+        { "id": "doc-001", "type": "passport", "status": "uploaded", "uploadedAt": "2025-12-28T07:00:00Z" },
+        { "id": "doc-002", "type": "emiratesId", "status": "uploaded", "uploadedAt": "2025-12-28T07:05:00Z" },
+        { "id": "doc-003", "type": "visa", "status": "uploaded", "uploadedAt": "2025-12-28T07:10:00Z" },
+        { "id": "doc-004", "type": "salaryCertificate", "status": "uploaded", "uploadedAt": "2025-12-28T08:00:00Z" },
+        { "id": "doc-005", "type": "payslips", "status": "uploaded", "uploadedAt": "2025-12-28T09:00:00Z" },
+        { "id": "doc-006", "type": "bankStatements", "status": "missing" },
+        { "id": "doc-007", "type": "creditCardStatement", "status": "notApplicable" },
+        { "id": "doc-008", "type": "loanStatements", "status": "missing" }
+      ],
+      "callLogs": [
+        {
+          "id": "call-001",
+          "outcome": "connected",
+          "notes": "Spoke briefly. Interested in refinancing current villa. Salary 45k. Will send docs.",
+          "timestamp": "2025-12-28T06:30:00Z"
+        },
+        {
+          "id": "call-002",
+          "outcome": "connected",
+          "notes": "Confirmed salary certificate received. Waiting for bank statements.",
+          "timestamp": "2025-12-28T09:30:00Z"
+        }
+      ],
+      "messages": [
+        {
+          "id": "msg-001",
+          "direction": "outbound",
+          "content": "Hi Fatima, this is Ahmed from Rivo. We've received your documents. Just need your bank statements to proceed.",
+          "timestamp": "2025-12-28T10:00:00Z"
+        },
+        {
+          "id": "msg-002",
+          "direction": "inbound",
+          "content": "Hi Ahmed, I'll send them tonight after work. Thanks!",
+          "timestamp": "2025-12-28T10:05:00Z"
+        }
+      ]
+    },
+    {
+      "id": "client-002",
+      "firstName": "Ahmed",
+      "lastName": "Al Mansouri",
+      "email": "ahmed.mansouri@outlook.com",
+      "phone": "+971 50 123 4567",
+      "residencyStatus": "citizen",
+      "dateOfBirth": "1985-07-22",
+      "nationality": "Emirati",
+      "employmentStatus": "employed",
+      "monthlySalary": 35000,
+      "monthlyLiabilities": 12000,
+      "loanAmount": 1800000,
+      "estimatedPropertyValue": 2200000,
+      "eligibilityStatus": "notEligible",
+      "estimatedDBR": 58,
+      "estimatedLTV": 82,
+      "maxLoanAmount": 1200000,
+      "eligibleBanks": [],
+      "createdAt": "2025-12-28T08:30:00Z",
+      "source": {
+        "channel": "Meta",
+        "campaign": "Dec_Refinance_v2"
+      },
+      "documents": [
+        { "id": "doc-009", "type": "passport", "status": "uploaded", "uploadedAt": "2025-12-28T09:00:00Z" },
+        { "id": "doc-010", "type": "emiratesId", "status": "uploaded", "uploadedAt": "2025-12-28T09:05:00Z" },
+        { "id": "doc-011", "type": "visa", "status": "notApplicable" },
+        { "id": "doc-012", "type": "salaryCertificate", "status": "uploaded", "uploadedAt": "2025-12-28T10:00:00Z" },
+        { "id": "doc-013", "type": "payslips", "status": "uploaded", "uploadedAt": "2025-12-28T10:30:00Z" },
+        { "id": "doc-014", "type": "bankStatements", "status": "uploaded", "uploadedAt": "2025-12-28T11:00:00Z" },
+        { "id": "doc-015", "type": "creditCardStatement", "status": "uploaded", "uploadedAt": "2025-12-28T11:30:00Z" },
+        { "id": "doc-016", "type": "loanStatements", "status": "uploaded", "uploadedAt": "2025-12-28T11:45:00Z" }
+      ],
+      "callLogs": [
+        {
+          "id": "call-003",
+          "outcome": "connected",
+          "notes": "Client has high existing liabilities - car loan 5k, personal loan 4k, credit cards 3k. DBR exceeds 50%. Discussed options to reduce liabilities.",
+          "timestamp": "2025-12-28T09:30:00Z"
+        }
+      ],
+      "messages": [
+        {
+          "id": "msg-003",
+          "direction": "outbound",
+          "content": "Hi Ahmed, based on our calculations, your current DBR is 58% which exceeds bank limits. Would you consider paying off some liabilities first?",
+          "timestamp": "2025-12-28T12:00:00Z"
+        },
+        {
+          "id": "msg-004",
+          "direction": "inbound",
+          "content": "I understand. Let me check if I can settle the personal loan. Will get back to you.",
+          "timestamp": "2025-12-28T12:30:00Z"
+        }
+      ]
+    },
+    {
+      "id": "client-003",
+      "firstName": "Priya",
+      "lastName": "Sharma",
+      "email": "priya.sharma@adnoc.ae",
+      "phone": "+971 55 666 7777",
+      "residencyStatus": "resident",
+      "dateOfBirth": "1990-11-08",
+      "nationality": "Indian",
+      "employmentStatus": "employed",
+      "monthlySalary": 60000,
+      "monthlyLiabilities": 5000,
+      "loanAmount": 3000000,
+      "estimatedPropertyValue": 3800000,
+      "eligibilityStatus": "eligible",
+      "estimatedDBR": 35,
+      "estimatedLTV": 79,
+      "maxLoanAmount": 3040000,
+      "eligibleBanks": ["Emirates NBD", "ADCB", "FAB", "DIB", "Mashreq"],
+      "createdAt": "2025-12-28T04:30:00Z",
+      "source": {
+        "channel": "AskRivo"
+      },
+      "documents": [
+        { "id": "doc-017", "type": "passport", "status": "uploaded", "uploadedAt": "2025-12-28T05:00:00Z" },
+        { "id": "doc-018", "type": "emiratesId", "status": "uploaded", "uploadedAt": "2025-12-28T05:05:00Z" },
+        { "id": "doc-019", "type": "visa", "status": "uploaded", "uploadedAt": "2025-12-28T05:10:00Z" },
+        { "id": "doc-020", "type": "salaryCertificate", "status": "uploaded", "uploadedAt": "2025-12-28T06:00:00Z" },
+        { "id": "doc-021", "type": "payslips", "status": "uploaded", "uploadedAt": "2025-12-28T06:30:00Z" },
+        { "id": "doc-022", "type": "bankStatements", "status": "uploaded", "uploadedAt": "2025-12-28T07:00:00Z" },
+        { "id": "doc-023", "type": "creditCardStatement", "status": "uploaded", "uploadedAt": "2025-12-28T07:15:00Z" },
+        { "id": "doc-024", "type": "loanStatements", "status": "notApplicable" }
+      ],
+      "callLogs": [
+        {
+          "id": "call-004",
+          "outcome": "connected",
+          "notes": "Very interested. Already has 1 property, wants 2nd for investment. Salary 60k at ADNOC. Ready to proceed.",
+          "timestamp": "2025-12-28T04:30:00Z"
+        },
+        {
+          "id": "call-005",
+          "outcome": "connected",
+          "notes": "All docs collected. Explained under-construction property process. Client ready to create case with Emirates NBD.",
+          "timestamp": "2025-12-28T08:00:00Z"
+        }
+      ],
+      "messages": [
+        {
+          "id": "msg-005",
+          "direction": "outbound",
+          "content": "Hi Priya, all your documents are verified. You're eligible for up to 3.04M AED. Ready to proceed with Emirates NBD?",
+          "timestamp": "2025-12-28T08:30:00Z"
+        },
+        {
+          "id": "msg-006",
+          "direction": "inbound",
+          "content": "Yes please! Let's go with Emirates NBD. What's the next step?",
+          "timestamp": "2025-12-28T08:35:00Z"
+        }
+      ]
+    },
+    {
+      "id": "client-004",
+      "firstName": "Mohammed",
+      "lastName": "Rashid",
+      "email": "m.rashid@emirates.com",
+      "phone": "+971 52 555 1234",
+      "residencyStatus": "resident",
+      "dateOfBirth": "1992-05-20",
+      "nationality": "Pakistani",
+      "employmentStatus": "employed",
+      "monthlySalary": 35000,
+      "monthlyLiabilities": null,
+      "loanAmount": null,
+      "estimatedPropertyValue": null,
+      "eligibilityStatus": "pending",
+      "estimatedDBR": null,
+      "estimatedLTV": null,
+      "maxLoanAmount": null,
+      "eligibleBanks": null,
+      "createdAt": "2025-12-28T10:15:00Z",
+      "source": {
+        "channel": "AskRivo"
+      },
+      "documents": [
+        { "id": "doc-025", "type": "passport", "status": "missing" },
+        { "id": "doc-026", "type": "emiratesId", "status": "missing" },
+        { "id": "doc-027", "type": "visa", "status": "missing" },
+        { "id": "doc-028", "type": "salaryCertificate", "status": "missing" },
+        { "id": "doc-029", "type": "payslips", "status": "missing" },
+        { "id": "doc-030", "type": "bankStatements", "status": "missing" },
+        { "id": "doc-031", "type": "creditCardStatement", "status": "missing" },
+        { "id": "doc-032", "type": "loanStatements", "status": "missing" }
+      ],
+      "callLogs": [
+        {
+          "id": "call-006",
+          "outcome": "noAnswer",
+          "notes": "",
+          "timestamp": "2025-12-28T11:00:00Z"
+        },
+        {
+          "id": "call-007",
+          "outcome": "noAnswer",
+          "notes": "",
+          "timestamp": "2025-12-28T12:00:00Z"
+        }
+      ],
+      "messages": [
+        {
+          "id": "msg-007",
+          "direction": "outbound",
+          "content": "Hi Mohammed, this is Rivo Mortgages. I tried calling but couldn't reach you. When's a good time to chat about your mortgage inquiry?",
+          "timestamp": "2025-12-28T12:05:00Z"
+        }
+      ]
+    },
+    {
+      "id": "client-005",
+      "firstName": "Aisha",
+      "lastName": "Khan",
+      "email": "aisha.khan@enbd.ae",
+      "phone": "+971 54 111 9999",
+      "residencyStatus": "resident",
+      "dateOfBirth": "1987-09-12",
+      "nationality": "British",
+      "employmentStatus": "employed",
+      "monthlySalary": 55000,
+      "monthlyLiabilities": 3000,
+      "loanAmount": 1500000,
+      "estimatedPropertyValue": 1800000,
+      "eligibilityStatus": "eligible",
+      "estimatedDBR": 30,
+      "estimatedLTV": 83,
+      "maxLoanAmount": 1530000,
+      "eligibleBanks": ["Emirates NBD", "HSBC", "Standard Chartered"],
+      "createdAt": "2025-12-28T09:30:00Z",
+      "source": {
+        "channel": "Email",
+        "campaign": "RateAlert_Jan"
+      },
+      "documents": [
+        { "id": "doc-033", "type": "passport", "status": "uploaded", "uploadedAt": "2025-12-28T10:00:00Z" },
+        { "id": "doc-034", "type": "emiratesId", "status": "uploaded", "uploadedAt": "2025-12-28T10:05:00Z" },
+        { "id": "doc-035", "type": "visa", "status": "uploaded", "uploadedAt": "2025-12-28T10:10:00Z" },
+        { "id": "doc-036", "type": "salaryCertificate", "status": "missing" },
+        { "id": "doc-037", "type": "payslips", "status": "missing" },
+        { "id": "doc-038", "type": "bankStatements", "status": "missing" },
+        { "id": "doc-039", "type": "creditCardStatement", "status": "notApplicable" },
+        { "id": "doc-040", "type": "loanStatements", "status": "notApplicable" }
+      ],
+      "callLogs": [
+        {
+          "id": "call-008",
+          "outcome": "connected",
+          "notes": "Currently renting, looking to buy first home. Budget 1.5M. Employed at Emirates NBD.",
+          "timestamp": "2025-12-28T09:30:00Z"
+        }
+      ],
+      "messages": [
+        {
+          "id": "msg-008",
+          "direction": "outbound",
+          "content": "Hi Aisha, great chatting! Please upload your salary certificate and payslips when you have a moment.",
+          "timestamp": "2025-12-28T11:00:00Z"
+        },
+        {
+          "id": "msg-009",
+          "direction": "inbound",
+          "content": "Will do! Just need to request the salary cert from HR. Should have it by tomorrow.",
+          "timestamp": "2025-12-28T11:15:00Z"
+        }
+      ]
+    },
+    {
+      "id": "client-006",
+      "firstName": "Omar",
+      "lastName": "Youssef",
+      "email": "omar.youssef@gmail.com",
+      "phone": "+971 50 444 5555",
+      "residencyStatus": "resident",
+      "dateOfBirth": "1983-02-28",
+      "nationality": "Lebanese",
+      "employmentStatus": "selfEmployed",
+      "monthlySalary": 80000,
+      "monthlyLiabilities": 15000,
+      "loanAmount": 4000000,
+      "estimatedPropertyValue": 5500000,
+      "eligibilityStatus": "pending",
+      "estimatedDBR": null,
+      "estimatedLTV": null,
+      "maxLoanAmount": null,
+      "eligibleBanks": null,
+      "createdAt": "2025-12-28T03:00:00Z",
+      "status": "notProceeding",
+      "statusReason": "Not ready now - will buy in 6-8 months after visa renewal",
+      "source": {
+        "channel": "Google",
+        "campaign": "Q1_HomeLoans_2024"
+      },
+      "documents": [
+        { "id": "doc-041", "type": "passport", "status": "missing" },
+        { "id": "doc-042", "type": "emiratesId", "status": "missing" },
+        { "id": "doc-043", "type": "visa", "status": "missing" },
+        { "id": "doc-044", "type": "salaryCertificate", "status": "notApplicable" },
+        { "id": "doc-045", "type": "payslips", "status": "notApplicable" },
+        { "id": "doc-046", "type": "bankStatements", "status": "missing" },
+        { "id": "doc-047", "type": "creditCardStatement", "status": "missing" },
+        { "id": "doc-048", "type": "loanStatements", "status": "missing" }
+      ],
+      "callLogs": [
+        {
+          "id": "call-009",
+          "outcome": "connected",
+          "notes": "Friendly chat. Not ready to proceed now. Visa expires in 2 months, will renew first. Self-employed, runs import/export business.",
+          "timestamp": "2025-12-28T04:00:00Z"
+        }
+      ],
+      "messages": [
+        {
+          "id": "msg-010",
+          "direction": "outbound",
+          "content": "Hi Omar, no problem at all! I've noted that you'll be ready in 6-8 months. I'll follow up with you in June. Good luck with the visa renewal!",
+          "timestamp": "2025-12-28T04:30:00Z"
+        },
+        {
+          "id": "msg-011",
+          "direction": "inbound",
+          "content": "Thanks for understanding. Talk soon!",
+          "timestamp": "2025-12-28T04:35:00Z"
+        }
+      ]
+    }
+  ]
+}

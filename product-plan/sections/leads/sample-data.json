@@ -1,0 +1,185 @@
+{
+  "_meta": {
+    "models": {
+      "leads": "Raw signals from unverified channels (Meta, Google, WhatsApp, Email, AskRivo). Temporary records that either convert to Clients or get dropped.",
+      "callLogs": "Records of phone call attempts with outcomes and notes. Each call is timestamped and linked to a lead."
+    },
+    "relationships": [
+      "Each Lead has zero or more CallLogs (the activity timeline)",
+      "Leads belong to a Channel and Campaign for attribution tracking"
+    ]
+  },
+  "leads": [
+    {
+      "id": "lead-001",
+      "firstName": "Ahmed",
+      "lastName": "Al Mansouri",
+      "email": "ahmed.mansouri@email.com",
+      "phone": "+971 50 123 4567",
+      "channel": "Meta",
+      "campaign": "Dec_Refinance_v2",
+      "intent": "Clicked 'Free Mortgage Calculator'",
+      "createdAt": "2025-12-28T08:30:00Z",
+      "status": "new",
+      "callLogs": []
+    },
+    {
+      "id": "lead-002",
+      "firstName": "Fatima",
+      "lastName": "Hassan",
+      "email": "fatima.h@gmail.com",
+      "phone": "+971 55 987 6543",
+      "channel": "Google",
+      "campaign": "Q1_HomeLoans_2024",
+      "intent": "Searched 'best mortgage rates dubai'",
+      "createdAt": "2025-12-28T07:45:00Z",
+      "status": "new",
+      "callLogs": [
+        {
+          "id": "call-001",
+          "outcome": "noAnswer",
+          "notes": "Rang 6 times, no pickup",
+          "timestamp": "2025-12-28T09:00:00Z"
+        },
+        {
+          "id": "call-002",
+          "outcome": "connected",
+          "notes": "Spoke briefly. Interested in refinancing current villa. Salary 45k. Will send docs.",
+          "timestamp": "2025-12-28T10:30:00Z"
+        }
+      ]
+    },
+    {
+      "id": "lead-003",
+      "firstName": "Mohammed",
+      "lastName": "Rashid",
+      "phone": "+971 52 555 1234",
+      "channel": "AskRivo",
+      "intent": "Completed eligibility check via chatbot",
+      "createdAt": "2025-12-28T09:15:00Z",
+      "status": "new",
+      "callLogs": [],
+      "transcript": "User: Hi, I want to check if I'm eligible for a mortgage\nRivo: Sure! What's your monthly salary?\nUser: 35,000 AED\nRivo: Great! Are you currently employed?\nUser: Yes, at Emirates Airlines for 3 years\nRivo: Based on your details, you likely qualify for up to 2.5M AED. Would you like our team to call you?\nUser: Yes please"
+    },
+    {
+      "id": "lead-004",
+      "firstName": "Sara",
+      "lastName": "Ahmed",
+      "email": "sara.ahmed@outlook.com",
+      "phone": "+971 50 777 8888",
+      "channel": "WhatsApp",
+      "campaign": "NewYear_Broadcast",
+      "intent": "Replied 'INTERESTED' to broadcast",
+      "createdAt": "2025-12-28T06:00:00Z",
+      "status": "new",
+      "callLogs": [
+        {
+          "id": "call-003",
+          "outcome": "busy",
+          "notes": "Line busy",
+          "timestamp": "2025-12-28T08:00:00Z"
+        },
+        {
+          "id": "call-004",
+          "outcome": "noAnswer",
+          "notes": "",
+          "timestamp": "2025-12-28T09:30:00Z"
+        }
+      ]
+    },
+    {
+      "id": "lead-005",
+      "firstName": "Khalid",
+      "lastName": "Ibrahim",
+      "phone": "+971 56 333 2222",
+      "channel": "Meta",
+      "campaign": "Dec_Refinance_v2",
+      "intent": "Clicked 'Check Your Eligibility'",
+      "createdAt": "2025-12-28T05:30:00Z",
+      "status": "dropped",
+      "dropReason": {
+        "status": "dead",
+        "subStatus": "wrongNumber",
+        "notes": "Number belongs to a restaurant"
+      },
+      "callLogs": [
+        {
+          "id": "call-005",
+          "outcome": "wrongNumber",
+          "notes": "Answered by Al Mandi Restaurant",
+          "timestamp": "2025-12-28T07:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "lead-006",
+      "firstName": "Aisha",
+      "lastName": "Khan",
+      "email": "aisha.khan@enbd.com",
+      "phone": "+971 54 111 9999",
+      "channel": "Email",
+      "campaign": "RateAlert_Jan",
+      "intent": "Clicked 'See New Rates' in email",
+      "createdAt": "2025-12-28T04:00:00Z",
+      "status": "new",
+      "callLogs": [
+        {
+          "id": "call-006",
+          "outcome": "connected",
+          "notes": "Currently renting, looking to buy first home. Budget 1.5M. Employed at Emirates NBD.",
+          "timestamp": "2025-12-28T06:30:00Z"
+        }
+      ]
+    },
+    {
+      "id": "lead-007",
+      "firstName": "Omar",
+      "lastName": "Youssef",
+      "email": "omar.y@gmail.com",
+      "phone": "+971 50 444 5555",
+      "channel": "Google",
+      "campaign": "Q1_HomeLoans_2024",
+      "intent": "Searched 'mortgage calculator uae'",
+      "createdAt": "2025-12-28T03:00:00Z",
+      "status": "dropped",
+      "dropReason": {
+        "status": "notInterested",
+        "subStatus": "notReadyNow",
+        "notes": "Just exploring options. Will buy in 6-8 months after visa renewal."
+      },
+      "callLogs": [
+        {
+          "id": "call-007",
+          "outcome": "connected",
+          "notes": "Friendly chat. Not ready to proceed now. Visa expires in 2 months, will renew first.",
+          "timestamp": "2025-12-28T05:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "lead-008",
+      "firstName": "Priya",
+      "lastName": "Sharma",
+      "email": "priya.sharma@adnoc.ae",
+      "phone": "+971 55 666 7777",
+      "channel": "AskRivo",
+      "intent": "Asked about investment property financing",
+      "createdAt": "2025-12-28T02:30:00Z",
+      "status": "converted",
+      "callLogs": [
+        {
+          "id": "call-008",
+          "outcome": "noAnswer",
+          "notes": "",
+          "timestamp": "2025-12-28T04:00:00Z"
+        },
+        {
+          "id": "call-009",
+          "outcome": "connected",
+          "notes": "Very interested. Already has 1 property, wants 2nd for investment. Salary 60k at ADNOC. Ready to proceed.",
+          "timestamp": "2025-12-28T05:30:00Z"
+        }
+      ]
+    }
+  ]
+}

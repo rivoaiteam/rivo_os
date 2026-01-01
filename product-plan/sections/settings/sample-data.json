@@ -1,0 +1,60 @@
+{
+  "_meta": {
+    "models": {
+      "settingsCategories": "Groups of related configuration options",
+      "settingsItems": "Individual configuration pages within a category",
+      "channels": "Sources for Clients (Partner DSA, RMA, AskRivo, etc.)",
+      "campaigns": "Sources for Leads (marketing campaigns with status)",
+      "users": "Team members who can access the dashboard",
+      "systemPassword": "Shared password for all active users"
+    }
+  },
+  "channels": [
+    { "id": "ch-1", "name": "Partner DSA", "status": "active", "createdAt": "2024-11-01T10:00:00Z" },
+    { "id": "ch-2", "name": "RMA", "status": "active", "createdAt": "2024-11-15T14:30:00Z" },
+    { "id": "ch-3", "name": "AskRivo", "status": "inactive", "createdAt": "2024-12-01T09:00:00Z" }
+  ],
+  "campaigns": [
+    { "id": "camp-1", "name": "Dec_Refinance_v2", "status": "live", "createdAt": "2024-12-15T10:00:00Z" },
+    { "id": "camp-2", "name": "Jan_NewYear_Promo", "status": "incubation", "createdAt": "2024-12-28T14:30:00Z" },
+    { "id": "camp-3", "name": "Q4_Mortgage_Push", "status": "pause", "createdAt": "2024-10-01T09:00:00Z" }
+  ],
+  "users": [
+    { "id": "user-1", "name": "Nithesh", "status": "active", "createdAt": "2024-11-01T10:00:00Z" },
+    { "id": "user-2", "name": "Anam", "status": "active", "createdAt": "2024-11-15T14:30:00Z" },
+    { "id": "user-3", "name": "Aneesh", "status": "active", "createdAt": "2024-12-01T09:00:00Z" }
+  ],
+  "systemPassword": "rivo2026",
+  "categories": [
+    {
+      "id": "sources",
+      "title": "Sources",
+      "items": [
+        {
+          "id": "channels",
+          "title": "Channels",
+          "description": "Partner DSA, RMA, AskRivo",
+          "href": "/settings/channels"
+        },
+        {
+          "id": "campaigns",
+          "title": "Campaigns",
+          "description": "Marketing campaigns with status management",
+          "href": "/settings/campaigns"
+        }
+      ]
+    },
+    {
+      "id": "team",
+      "title": "Team",
+      "items": [
+        {
+          "id": "users",
+          "title": "Users",
+          "description": "Manage team access with shared password",
+          "href": "/settings/users"
+        }
+      ]
+    }
+  ]
+}

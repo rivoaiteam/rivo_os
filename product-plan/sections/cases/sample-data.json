@@ -1,0 +1,356 @@
+{
+  "banks": [
+    { "id": "enbd", "name": "Emirates NBD" },
+    { "id": "adcb", "name": "ADCB" },
+    { "id": "mashreq", "name": "Mashreq" },
+    { "id": "dib", "name": "Dubai Islamic Bank" },
+    { "id": "fab", "name": "First Abu Dhabi Bank" },
+    { "id": "adib", "name": "Abu Dhabi Islamic Bank" }
+  ],
+  "clients": [
+    {
+      "id": "client-001",
+      "firstName": "Sarah",
+      "lastName": "Johnson",
+      "phone": "+971 55 123 4567",
+      "estimatedDBR": 45,
+      "estimatedLTV": 80
+    },
+    {
+      "id": "client-002",
+      "firstName": "Michael",
+      "lastName": "Chen",
+      "phone": "+971 50 987 6543",
+      "estimatedDBR": 38,
+      "estimatedLTV": 75
+    },
+    {
+      "id": "client-003",
+      "firstName": "Fatima",
+      "lastName": "Al Rashid",
+      "phone": "+971 55 456 7890",
+      "estimatedDBR": 52,
+      "estimatedLTV": 82
+    },
+    {
+      "id": "client-004",
+      "firstName": "James",
+      "lastName": "Wilson",
+      "phone": "+971 52 111 2222",
+      "estimatedDBR": 42,
+      "estimatedLTV": 70
+    },
+    {
+      "id": "client-005",
+      "firstName": "Aisha",
+      "lastName": "Khan",
+      "phone": "+971 56 333 4444",
+      "estimatedDBR": 35,
+      "estimatedLTV": 65
+    }
+  ],
+  "cases": [
+    {
+      "id": "case-001",
+      "caseId": "RV-00123",
+      "clientId": "client-001",
+      "caseType": "residential",
+      "serviceType": "fullyPackaged",
+      "applicationType": "individual",
+      "bankSelection": ["enbd", "adcb"],
+      "mortgageType": "islamic",
+      "emirate": "dubai",
+      "loanAmount": 2000000,
+      "transactionType": "primaryPurchase",
+      "mortgageTerm": { "years": 25, "months": 0 },
+      "estimatedPropertyValue": 2500000,
+      "propertyStatus": "ready",
+      "stage": "processing",
+      "createdAt": "2025-12-27T09:00:00Z",
+      "updatedAt": "2025-12-29T10:30:00Z",
+      "bankForms": [
+        { "id": "bf-001", "type": "accountOpeningForm", "status": "uploaded", "uploadedAt": "2025-12-28T14:00:00Z" },
+        { "id": "bf-002", "type": "fts", "status": "missing" },
+        { "id": "bf-003", "type": "kfs", "status": "missing" },
+        { "id": "bf-004", "type": "undertakings", "status": "missing" },
+        { "id": "bf-005", "type": "bankChecklist", "status": "missing" }
+      ],
+      "callLogs": [
+        { "id": "cl-001", "outcome": "connected", "timestamp": "2025-12-29T10:30:00Z", "notes": "Discussed document requirements" },
+        { "id": "cl-002", "outcome": "noAnswer", "timestamp": "2025-12-28T15:00:00Z" }
+      ],
+      "notes": [
+        { "id": "n-001", "content": "Client prefers Islamic financing only", "timestamp": "2025-12-27T10:00:00Z" }
+      ],
+      "stageChanges": [
+        { "id": "sc-001", "fromStage": null, "toStage": "processing", "timestamp": "2025-12-27T09:00:00Z" }
+      ]
+    },
+    {
+      "id": "case-002",
+      "caseId": "RV-00124",
+      "clientId": "client-002",
+      "caseType": "residential",
+      "serviceType": "assisted",
+      "applicationType": "joint",
+      "bankSelection": ["mashreq"],
+      "mortgageType": "conventional",
+      "emirate": "dubai",
+      "loanAmount": 1500000,
+      "transactionType": "resale",
+      "mortgageTerm": { "years": 20, "months": 0 },
+      "estimatedPropertyValue": 2000000,
+      "propertyStatus": "ready",
+      "stage": "submitted",
+      "createdAt": "2025-12-20T11:00:00Z",
+      "updatedAt": "2025-12-28T16:00:00Z",
+      "bankForms": [
+        { "id": "bf-006", "type": "accountOpeningForm", "status": "verified", "uploadedAt": "2025-12-21T10:00:00Z" },
+        { "id": "bf-007", "type": "fts", "status": "verified", "uploadedAt": "2025-12-21T10:30:00Z" },
+        { "id": "bf-008", "type": "kfs", "status": "verified", "uploadedAt": "2025-12-21T11:00:00Z" },
+        { "id": "bf-009", "type": "undertakings", "status": "verified", "uploadedAt": "2025-12-21T11:30:00Z" },
+        { "id": "bf-010", "type": "bankChecklist", "status": "verified", "uploadedAt": "2025-12-21T12:00:00Z" }
+      ],
+      "callLogs": [
+        { "id": "cl-003", "outcome": "connected", "timestamp": "2025-12-28T16:00:00Z", "notes": "Confirmed submission received by bank" }
+      ],
+      "notes": [],
+      "stageChanges": [
+        { "id": "sc-002", "fromStage": null, "toStage": "processing", "timestamp": "2025-12-20T11:00:00Z" },
+        { "id": "sc-003", "fromStage": "processing", "toStage": "submitted", "timestamp": "2025-12-22T09:00:00Z", "notes": "All forms verified, submitted via Huspy" }
+      ]
+    },
+    {
+      "id": "case-003",
+      "caseId": "RV-00125",
+      "clientId": "client-003",
+      "caseType": "residential",
+      "serviceType": "fullyPackaged",
+      "applicationType": "individual",
+      "bankSelection": ["dib", "adib"],
+      "mortgageType": "islamic",
+      "emirate": "abuDhabi",
+      "loanAmount": 3000000,
+      "transactionType": "primaryPurchase",
+      "mortgageTerm": { "years": 25, "months": 0 },
+      "estimatedPropertyValue": 4000000,
+      "propertyStatus": "underConstruction",
+      "stage": "preApproved",
+      "createdAt": "2025-12-10T08:00:00Z",
+      "updatedAt": "2025-12-27T14:00:00Z",
+      "bankForms": [
+        { "id": "bf-011", "type": "accountOpeningForm", "status": "verified", "uploadedAt": "2025-12-11T10:00:00Z" },
+        { "id": "bf-012", "type": "fts", "status": "verified", "uploadedAt": "2025-12-11T10:30:00Z" },
+        { "id": "bf-013", "type": "kfs", "status": "verified", "uploadedAt": "2025-12-11T11:00:00Z" },
+        { "id": "bf-014", "type": "undertakings", "status": "verified", "uploadedAt": "2025-12-11T11:30:00Z" },
+        { "id": "bf-015", "type": "bankChecklist", "status": "verified", "uploadedAt": "2025-12-11T12:00:00Z" }
+      ],
+      "callLogs": [
+        { "id": "cl-004", "outcome": "connected", "timestamp": "2025-12-27T14:00:00Z", "notes": "DIB approved in principle at 3.99%" }
+      ],
+      "notes": [
+        { "id": "n-002", "content": "Client comparing DIB and ADIB rates", "timestamp": "2025-12-15T10:00:00Z" }
+      ],
+      "stageChanges": [
+        { "id": "sc-004", "fromStage": null, "toStage": "processing", "timestamp": "2025-12-10T08:00:00Z" },
+        { "id": "sc-005", "fromStage": "processing", "toStage": "submitted", "timestamp": "2025-12-12T09:00:00Z" },
+        { "id": "sc-006", "fromStage": "submitted", "toStage": "underReview", "timestamp": "2025-12-15T10:00:00Z" },
+        { "id": "sc-007", "fromStage": "underReview", "toStage": "preApproved", "timestamp": "2025-12-20T11:00:00Z", "notes": "DIB pre-approved" }
+      ]
+    },
+    {
+      "id": "case-004",
+      "caseId": "RV-00089",
+      "clientId": "client-004",
+      "caseType": "residential",
+      "serviceType": "assisted",
+      "applicationType": "individual",
+      "bankSelection": ["adcb"],
+      "mortgageType": "conventional",
+      "emirate": "dubai",
+      "loanAmount": 1800000,
+      "transactionType": "resale",
+      "mortgageTerm": { "years": 15, "months": 0 },
+      "estimatedPropertyValue": 2400000,
+      "propertyStatus": "ready",
+      "stage": "disbursed",
+      "createdAt": "2025-11-01T09:00:00Z",
+      "updatedAt": "2025-12-15T12:00:00Z",
+      "bankForms": [
+        { "id": "bf-016", "type": "accountOpeningForm", "status": "verified", "uploadedAt": "2025-11-02T10:00:00Z" },
+        { "id": "bf-017", "type": "fts", "status": "verified", "uploadedAt": "2025-11-02T10:30:00Z" },
+        { "id": "bf-018", "type": "kfs", "status": "verified", "uploadedAt": "2025-11-02T11:00:00Z" },
+        { "id": "bf-019", "type": "undertakings", "status": "verified", "uploadedAt": "2025-11-02T11:30:00Z" },
+        { "id": "bf-020", "type": "bankChecklist", "status": "verified", "uploadedAt": "2025-11-02T12:00:00Z" }
+      ],
+      "callLogs": [
+        { "id": "cl-005", "outcome": "connected", "timestamp": "2025-12-15T12:00:00Z", "notes": "Confirmed disbursement complete" }
+      ],
+      "notes": [],
+      "stageChanges": [
+        { "id": "sc-008", "fromStage": null, "toStage": "processing", "timestamp": "2025-11-01T09:00:00Z" },
+        { "id": "sc-009", "fromStage": "processing", "toStage": "submitted", "timestamp": "2025-11-05T09:00:00Z" },
+        { "id": "sc-010", "fromStage": "submitted", "toStage": "underReview", "timestamp": "2025-11-08T10:00:00Z" },
+        { "id": "sc-011", "fromStage": "underReview", "toStage": "preApproved", "timestamp": "2025-11-15T11:00:00Z" },
+        { "id": "sc-012", "fromStage": "preApproved", "toStage": "valuation", "timestamp": "2025-11-18T09:00:00Z" },
+        { "id": "sc-013", "fromStage": "valuation", "toStage": "folProcessing", "timestamp": "2025-11-25T10:00:00Z" },
+        { "id": "sc-014", "fromStage": "folProcessing", "toStage": "folReceived", "timestamp": "2025-12-01T11:00:00Z" },
+        { "id": "sc-015", "fromStage": "folReceived", "toStage": "folSigned", "timestamp": "2025-12-05T14:00:00Z" },
+        { "id": "sc-016", "fromStage": "folSigned", "toStage": "disbursed", "timestamp": "2025-12-15T12:00:00Z", "notes": "Funds released to developer" }
+      ]
+    },
+    {
+      "id": "case-005",
+      "caseId": "RV-00102",
+      "clientId": "client-005",
+      "caseType": "commercial",
+      "serviceType": "fullyPackaged",
+      "applicationType": "individual",
+      "bankSelection": ["fab", "enbd"],
+      "mortgageType": "conventional",
+      "emirate": "dubai",
+      "loanAmount": 5000000,
+      "transactionType": "buyout",
+      "mortgageTerm": { "years": 20, "months": 0 },
+      "estimatedPropertyValue": 7000000,
+      "propertyStatus": "ready",
+      "stage": "declined",
+      "stageReason": "DBR exceeded bank threshold after recalculation",
+      "createdAt": "2025-11-15T10:00:00Z",
+      "updatedAt": "2025-12-10T15:00:00Z",
+      "bankForms": [
+        { "id": "bf-021", "type": "accountOpeningForm", "status": "verified", "uploadedAt": "2025-11-16T10:00:00Z" },
+        { "id": "bf-022", "type": "fts", "status": "verified", "uploadedAt": "2025-11-16T10:30:00Z" },
+        { "id": "bf-023", "type": "kfs", "status": "verified", "uploadedAt": "2025-11-16T11:00:00Z" },
+        { "id": "bf-024", "type": "undertakings", "status": "verified", "uploadedAt": "2025-11-16T11:30:00Z" },
+        { "id": "bf-025", "type": "bankChecklist", "status": "verified", "uploadedAt": "2025-11-16T12:00:00Z" }
+      ],
+      "callLogs": [
+        { "id": "cl-006", "outcome": "connected", "timestamp": "2025-12-10T15:00:00Z", "notes": "Informed client of decline, discussing options" }
+      ],
+      "notes": [
+        { "id": "n-003", "content": "Client has additional liabilities not initially disclosed", "timestamp": "2025-12-08T11:00:00Z" }
+      ],
+      "stageChanges": [
+        { "id": "sc-017", "fromStage": null, "toStage": "processing", "timestamp": "2025-11-15T10:00:00Z" },
+        { "id": "sc-018", "fromStage": "processing", "toStage": "submitted", "timestamp": "2025-11-18T09:00:00Z" },
+        { "id": "sc-019", "fromStage": "submitted", "toStage": "underReview", "timestamp": "2025-11-22T10:00:00Z" },
+        { "id": "sc-020", "fromStage": "underReview", "toStage": "declined", "timestamp": "2025-12-10T14:00:00Z", "notes": "DBR exceeded bank threshold after recalculation" }
+      ]
+    },
+    {
+      "id": "case-006",
+      "caseId": "RV-00130",
+      "clientId": "client-002",
+      "caseType": "residential",
+      "serviceType": "assisted",
+      "applicationType": "individual",
+      "bankSelection": ["enbd"],
+      "mortgageType": "conventional",
+      "emirate": "sharjah",
+      "loanAmount": 800000,
+      "transactionType": "equity",
+      "mortgageTerm": { "years": 10, "months": 6 },
+      "estimatedPropertyValue": 1200000,
+      "propertyStatus": "ready",
+      "stage": "valuation",
+      "createdAt": "2025-12-18T09:00:00Z",
+      "updatedAt": "2025-12-28T11:00:00Z",
+      "bankForms": [
+        { "id": "bf-026", "type": "accountOpeningForm", "status": "verified", "uploadedAt": "2025-12-19T10:00:00Z" },
+        { "id": "bf-027", "type": "fts", "status": "verified", "uploadedAt": "2025-12-19T10:30:00Z" },
+        { "id": "bf-028", "type": "kfs", "status": "verified", "uploadedAt": "2025-12-19T11:00:00Z" },
+        { "id": "bf-029", "type": "undertakings", "status": "verified", "uploadedAt": "2025-12-19T11:30:00Z" },
+        { "id": "bf-030", "type": "bankChecklist", "status": "verified", "uploadedAt": "2025-12-19T12:00:00Z" }
+      ],
+      "callLogs": [
+        { "id": "cl-007", "outcome": "connected", "timestamp": "2025-12-28T11:00:00Z", "notes": "Valuation scheduled for next week" }
+      ],
+      "notes": [],
+      "stageChanges": [
+        { "id": "sc-021", "fromStage": null, "toStage": "processing", "timestamp": "2025-12-18T09:00:00Z" },
+        { "id": "sc-022", "fromStage": "processing", "toStage": "submitted", "timestamp": "2025-12-20T09:00:00Z" },
+        { "id": "sc-023", "fromStage": "submitted", "toStage": "underReview", "timestamp": "2025-12-22T10:00:00Z" },
+        { "id": "sc-024", "fromStage": "underReview", "toStage": "preApproved", "timestamp": "2025-12-26T11:00:00Z" },
+        { "id": "sc-025", "fromStage": "preApproved", "toStage": "valuation", "timestamp": "2025-12-27T10:00:00Z" }
+      ]
+    },
+    {
+      "id": "case-007",
+      "caseId": "RV-00095",
+      "clientId": "client-003",
+      "caseType": "residential",
+      "serviceType": "fullyPackaged",
+      "applicationType": "joint",
+      "bankSelection": ["mashreq"],
+      "mortgageType": "conventional",
+      "emirate": "dubai",
+      "loanAmount": 2200000,
+      "transactionType": "primaryPurchase",
+      "mortgageTerm": { "years": 25, "months": 0 },
+      "estimatedPropertyValue": 2800000,
+      "propertyStatus": "underConstruction",
+      "stage": "withdrawn",
+      "stageReason": "Client found better rates elsewhere",
+      "createdAt": "2025-11-20T10:00:00Z",
+      "updatedAt": "2025-12-05T09:00:00Z",
+      "bankForms": [
+        { "id": "bf-031", "type": "accountOpeningForm", "status": "verified", "uploadedAt": "2025-11-21T10:00:00Z" },
+        { "id": "bf-032", "type": "fts", "status": "verified", "uploadedAt": "2025-11-21T10:30:00Z" },
+        { "id": "bf-033", "type": "kfs", "status": "verified", "uploadedAt": "2025-11-21T11:00:00Z" },
+        { "id": "bf-034", "type": "undertakings", "status": "verified", "uploadedAt": "2025-11-21T11:30:00Z" },
+        { "id": "bf-035", "type": "bankChecklist", "status": "verified", "uploadedAt": "2025-11-21T12:00:00Z" }
+      ],
+      "callLogs": [
+        { "id": "cl-008", "outcome": "connected", "timestamp": "2025-12-05T09:00:00Z", "notes": "Client confirmed withdrawal" }
+      ],
+      "notes": [
+        { "id": "n-004", "content": "Client shopping rates with other brokers", "timestamp": "2025-12-01T14:00:00Z" }
+      ],
+      "stageChanges": [
+        { "id": "sc-026", "fromStage": null, "toStage": "processing", "timestamp": "2025-11-20T10:00:00Z" },
+        { "id": "sc-027", "fromStage": "processing", "toStage": "submitted", "timestamp": "2025-11-22T09:00:00Z" },
+        { "id": "sc-028", "fromStage": "submitted", "toStage": "withdrawn", "timestamp": "2025-12-05T09:00:00Z", "notes": "Client found better rates elsewhere" }
+      ]
+    },
+    {
+      "id": "case-008",
+      "caseId": "RV-00135",
+      "clientId": "client-001",
+      "caseType": "residential",
+      "serviceType": "assisted",
+      "applicationType": "individual",
+      "bankSelection": ["fab"],
+      "mortgageType": "conventional",
+      "emirate": "dubai",
+      "loanAmount": 1200000,
+      "transactionType": "buyoutEquity",
+      "mortgageTerm": { "years": 15, "months": 0 },
+      "estimatedPropertyValue": 1800000,
+      "propertyStatus": "ready",
+      "stage": "folReceived",
+      "createdAt": "2025-12-01T09:00:00Z",
+      "updatedAt": "2025-12-28T14:00:00Z",
+      "bankForms": [
+        { "id": "bf-036", "type": "accountOpeningForm", "status": "verified", "uploadedAt": "2025-12-02T10:00:00Z" },
+        { "id": "bf-037", "type": "fts", "status": "verified", "uploadedAt": "2025-12-02T10:30:00Z" },
+        { "id": "bf-038", "type": "kfs", "status": "verified", "uploadedAt": "2025-12-02T11:00:00Z" },
+        { "id": "bf-039", "type": "undertakings", "status": "verified", "uploadedAt": "2025-12-02T11:30:00Z" },
+        { "id": "bf-040", "type": "bankChecklist", "status": "verified", "uploadedAt": "2025-12-02T12:00:00Z" }
+      ],
+      "callLogs": [
+        { "id": "cl-009", "outcome": "connected", "timestamp": "2025-12-28T14:00:00Z", "notes": "FOL received, scheduling signing" }
+      ],
+      "notes": [],
+      "stageChanges": [
+        { "id": "sc-029", "fromStage": null, "toStage": "processing", "timestamp": "2025-12-01T09:00:00Z" },
+        { "id": "sc-030", "fromStage": "processing", "toStage": "submitted", "timestamp": "2025-12-03T09:00:00Z" },
+        { "id": "sc-031", "fromStage": "submitted", "toStage": "underReview", "timestamp": "2025-12-05T10:00:00Z" },
+        { "id": "sc-032", "fromStage": "underReview", "toStage": "preApproved", "timestamp": "2025-12-10T11:00:00Z" },
+        { "id": "sc-033", "fromStage": "preApproved", "toStage": "valuation", "timestamp": "2025-12-12T09:00:00Z" },
+        { "id": "sc-034", "fromStage": "valuation", "toStage": "folProcessing", "timestamp": "2025-12-18T10:00:00Z" },
+        { "id": "sc-035", "fromStage": "folProcessing", "toStage": "folReceived", "timestamp": "2025-12-28T14:00:00Z" }
+      ]
+    }
+  ]
+}
