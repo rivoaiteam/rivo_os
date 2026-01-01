@@ -7,7 +7,7 @@ const TOKEN_KEY = 'auth_token'
 // For FormData, axios will set multipart/form-data with proper boundary
 // For JSON, axios will set application/json automatically
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
 })
 
 // Get token from localStorage
