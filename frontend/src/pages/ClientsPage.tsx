@@ -169,12 +169,12 @@ export default function ClientsPage() {
     advanceStage.mutate({ id: caseId, notes })
   }
 
-  const handleCaseDecline = (caseId: number, reason: string) => {
+  const handleCaseDecline = (caseId: number, reason?: string) => {
     declineCase.mutate({ entityId: caseId, status: 'declined', reason })
     setSelectedCaseId(null)
   }
 
-  const handleCaseWithdraw = (caseId: number, reason: string) => {
+  const handleCaseWithdraw = (caseId: number, reason?: string) => {
     withdrawCase.mutate({ entityId: caseId, status: 'withdrawn', reason })
     setSelectedCaseId(null)
   }

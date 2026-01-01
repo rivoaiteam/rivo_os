@@ -1,7 +1,6 @@
 export { TabButton } from './TabButton'
 export { FilterButton } from './FilterButton'
 export { InlineActions, NoteAction, PhoneAction, RowActionsDropdown, CasesDropdown, ClientLink } from './InlineActions'
-export type { CallOutcome } from './InlineActions'
 export { SidePanel, SidePanelTabs, SidePanelContent, SidePanelStatus } from './SidePanel'
 export { ActivityView } from './ActivityView'
 export { SectionHeader, InfoField, InfoTextArea } from './InfoBox'

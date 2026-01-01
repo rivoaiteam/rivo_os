@@ -1,4 +1,4 @@
-import { useEffect, RefObject } from 'react'
+import { useEffect, type RefObject } from 'react'
 
 /**
  * Hook that handles click outside of the passed ref element
@@ -7,7 +7,7 @@ import { useEffect, RefObject } from 'react'
  * @param enabled - Optional boolean to enable/disable the listener (default: true)
  */
 export function useClickOutside<T extends HTMLElement = HTMLElement>(
-  ref: RefObject<T>,
+  ref: RefObject<T | null>,
   handler: () => void,
   enabled: boolean = true
 ) {

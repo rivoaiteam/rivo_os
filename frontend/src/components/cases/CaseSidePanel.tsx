@@ -47,8 +47,8 @@ interface ViewModeProps {
   onAddNote: (content: string) => void
   onLogCall: (outcome: CallOutcome, notes?: string) => void
   onAdvanceStage: (notes?: string) => void
-  onDecline: (reason: string) => void
-  onWithdraw: (reason: string) => void
+  onDecline: (reason?: string) => void
+  onWithdraw: (reason?: string) => void
   onUploadBankForm: (type: BankFormType, file: File) => void
   onDeleteBankForm?: (formId: number) => void
   onUpdate?: (data: Partial<Case>) => void

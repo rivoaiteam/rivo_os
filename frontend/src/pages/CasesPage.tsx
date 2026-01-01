@@ -192,13 +192,13 @@ export default function CasesPage() {
     setSelectedCaseId(caseId)
   }
 
-  const handleDecline = (caseId: number, reason: string) => {
+  const handleDecline = (caseId: number, reason?: string) => {
     declineCase.mutate({ entityId: caseId, status: 'declined', reason })
     setInitialPanelTab('activity')
     setSelectedCaseId(caseId)
   }
 
-  const handleWithdraw = (caseId: number, reason: string) => {
+  const handleWithdraw = (caseId: number, reason?: string) => {
     withdrawCase.mutate({ entityId: caseId, status: 'withdrawn', reason })
     setInitialPanelTab('activity')
     setSelectedCaseId(caseId)

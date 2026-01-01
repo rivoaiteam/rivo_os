@@ -51,7 +51,7 @@ export const entityApi = {
     entityType: 'lead' | 'client',
     entityId: number,
     status: string,
-    reason?: string,
+    _reason?: string,
     notes?: string
   ): Promise<unknown> {
     const endpoint = ENTITY_ENDPOINTS[entityType]
@@ -83,18 +83,21 @@ export const entityApi = {
    */
   async updateCaseStatus(
     caseId: number,
-    status: 'declined' | 'withdrawn',
-    reason?: string,
+    status: 'declined' | 'withdrawn' | 'disbursed',
     notes?: string
   ): Promise<unknown> {
     const endpoint = ENTITY_ENDPOINTS.case
 
     if (status === 'declined') {
-      const response = await api.post(`${endpoint}/${caseId}/decline/`, { reason: reason || notes })
+      const response = await api.post(`${endpoint}/${caseId}/decline/`, { reason: notes })
       return response.data
     }
     if (status === 'withdrawn') {
-      const response = await api.post(`${endpoint}/${caseId}/withdraw/`, { reason: reason || notes })
+      const response = await api.post(`${endpoint}/${caseId}/withdraw/`, { reason: notes })
+      return response.data
+    }
+    if (status === 'disbursed') {
+      const response = await api.post(`${endpoint}/${caseId}/move_stage/`, { stage: 'disbursed', notes })
       return response.data
     }
 

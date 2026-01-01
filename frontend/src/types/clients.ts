@@ -35,18 +35,12 @@ export interface Document {
   uploadedAt?: string
 }
 
-export interface CallLog {
-  id: number
-  outcome: CallOutcome
-  notes?: string
-  timestamp: string
-}
 
 export type { Note }
 
 export interface ClientStatusChange {
   id: number
-  type: 'converted_to_case' | 'not_eligible' | 'not_proceeding'
+  type: 'converted_from_lead' | 'converted_to_case' | 'not_eligible' | 'not_proceeding' | 'notEligible' | 'notProceeding'
   notes?: string
   timestamp: string
 }

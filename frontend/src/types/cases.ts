@@ -76,12 +76,6 @@ export interface ClientSummary {
   sourceDisplay?: string
 }
 
-export interface CallLog {
-  id: number
-  outcome: CallOutcome
-  notes?: string
-  timestamp: string
-}
 
 export type { Note }
 

@@ -19,7 +19,7 @@ import { ENTITY_QUERY_KEYS } from './types'
 const TERMINAL_STATUSES: Record<EntityType, string[]> = {
   lead: ['dropped'],
   client: ['notEligible', 'notProceeding'],
-  case: ['declined', 'withdrawn'],
+  case: ['declined', 'withdrawn', 'disbursed'],
 }
 
 // Status field name per entity (lead/client use 'status', case uses 'stage')
@@ -52,7 +52,6 @@ export function useUpdateStatus(entityType: EntityType) {
         return entityApi.updateCaseStatus(
           entityId,
           status as 'declined' | 'withdrawn' | 'disbursed',
-          reason,
           notes
         )
       }
@@ -100,8 +99,8 @@ export function useUpdateStatus(entityType: EntityType) {
         { queryKey: listKeyPattern, exact: false },
         (old) => {
           if (!old || !Array.isArray(old)) return old
-          return old.map((item: Record<string, unknown>) =>
-            item.id === entityId ? { ...item, [statusField]: status } : item
+          return old.map((item) =>
+            (item as Record<string, unknown>).id === entityId ? { ...(item as Record<string, unknown>), [statusField]: status } : item as Record<string, unknown>
           )
         }
       )
