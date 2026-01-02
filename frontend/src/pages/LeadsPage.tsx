@@ -68,7 +68,7 @@ export function LeadsPage() {
   const { data: paginatedLeads, error } = useLeads(filters)
 
   // Extract leads and pagination info from response
-  const leads = paginatedLeads?.results || []
+  const leads = useMemo(() => paginatedLeads?.results || [], [paginatedLeads?.results])
   const pagination = paginatedLeads ? {
     count: paginatedLeads.count,
     totalPages: paginatedLeads.totalPages,
