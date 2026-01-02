@@ -7,6 +7,7 @@ import { Search, TrendingUp, X } from 'lucide-react'
 import { useBankProducts, useEiborRatesLatest } from '@/hooks/useSettings'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { FilterButton } from '@/components/ui/FilterButton'
+import { Pagination } from '@/components/ui/Pagination'
 import { SidePanel, SidePanelContent } from '@/components/ui/SidePanel'
 import type {
   BankProduct,
@@ -37,36 +38,36 @@ function ProductDetailsSidePanel({
     >
       <SidePanelContent>
         {/* Bank info card */}
-        <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+        <div className="p-4 bg-slate-50 rounded-lg">
           <div className="flex items-center gap-4">
             {product.bankIcon ? (
               <img src={product.bankIcon} alt={product.bankName} className="w-10 h-10 rounded" />
             ) : (
-              <div className="w-10 h-10 rounded bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-slate-500 text-sm font-medium">
+              <div className="w-10 h-10 rounded bg-slate-200 flex items-center justify-center text-slate-500 text-sm font-medium">
                 {product.bankName.charAt(0)}
               </div>
             )}
             <div className="flex-1">
-              <h3 className="font-medium text-slate-900 dark:text-white">{product.bankName}</h3>
+              <h3 className="font-medium text-slate-900">{product.bankName}</h3>
             </div>
           </div>
           <div className="mt-4 grid grid-cols-3 gap-4 text-xs">
             <div className="text-center">
               <div className="text-slate-500">Interest rate</div>
-              <div className="font-medium text-slate-900 dark:text-white">
+              <div className="font-medium text-slate-900">
                 {product.interestRate ?? 0}%
               </div>
               <div className="text-slate-400">{product.eiborType}</div>
             </div>
             <div className="text-center">
               <div className="text-slate-500">Bank fees</div>
-              <div className="font-medium text-slate-900 dark:text-white">
+              <div className="font-medium text-slate-900">
                 {product.mortgageProcessingFee}%
               </div>
             </div>
             <div className="text-center">
               <div className="text-slate-500">Follow on rate</div>
-              <div className="font-medium text-slate-900 dark:text-white">
+              <div className="font-medium text-slate-900">
                 {product.followOnRate ?? 0}%
               </div>
               <div className="text-slate-400">{product.eiborType}</div>
@@ -98,25 +99,25 @@ function ProductDetailsSidePanel({
         <div className="mt-6 space-y-3">
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Residency status</span>
-            <span className="text-slate-900 dark:text-white font-medium">
+            <span className="text-slate-900 font-medium">
               {product.citizenState.replace(/_/g, ' ')}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Employment status</span>
-            <span className="text-slate-900 dark:text-white font-medium">
+            <span className="text-slate-900 font-medium">
               {product.typeOfEmployment.replace(/_/g, ' ')}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">LTV</span>
-            <span className="text-slate-900 dark:text-white font-medium">
+            <span className="text-slate-900 font-medium">
               {product.loanToValueRatio > 0 ? `${product.loanToValueRatio}%` : '-'}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Minimum floor rate</span>
-            <span className="text-slate-900 dark:text-white font-medium">
+            <span className="text-slate-900 font-medium">
               {product.minimumRate > 0
                 ? `${product.minimumRate}%`
                 : 'No minimum rate set by bank'}
@@ -124,64 +125,64 @@ function ProductDetailsSidePanel({
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Property valuation fee</span>
-            <span className="text-slate-900 dark:text-white font-medium">
+            <span className="text-slate-900 font-medium">
               AED {product.homeValuationFee.toLocaleString()}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Pre-approval fee</span>
-            <span className="text-slate-900 dark:text-white font-medium">
+            <span className="text-slate-900 font-medium">
               AED {product.preApprovalFee.toLocaleString()}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Processing fee</span>
-            <span className="text-slate-900 dark:text-white font-medium">
+            <span className="text-slate-900 font-medium">
               {product.mortgageProcessingFee}%
               {product.minimumMortgageProcessingFee > 0 && ` (min AED ${product.minimumMortgageProcessingFee.toLocaleString()})`}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Monthly payment</span>
-            <span className="text-slate-900 dark:text-white font-medium">
+            <span className="text-slate-900 font-medium">
               {product.monthlyPayment ? `AED ${product.monthlyPayment.toLocaleString()}` : '-'}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Property insurance</span>
-            <span className="text-slate-900 dark:text-white font-medium">
+            <span className="text-slate-900 font-medium">
               {product.propertyInsurance}% per {product.propertyInsurancePaymentPeriod}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Life insurance</span>
-            <span className="text-slate-900 dark:text-white font-medium">
+            <span className="text-slate-900 font-medium">
               {product.lifeInsurance}% per {product.lifeInsurancePaymentPeriod}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Overpayment fee</span>
-            <span className="text-slate-900 dark:text-white font-medium text-right max-w-[180px]">
+            <span className="text-slate-900 font-medium text-right max-w-[180px]">
               {product.overpaymentFee || '-'}
             </span>
           </div>
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Early settlement fee</span>
-            <span className="text-slate-900 dark:text-white font-medium text-right max-w-[180px]">
+            <span className="text-slate-900 font-medium text-right max-w-[180px]">
               {product.earlySettlementFee || '-'}
             </span>
           </div>
           {product.buyoutProcessingFee > 0 && (
             <div className="flex justify-between text-sm">
               <span className="text-slate-500">Buyout fee</span>
-              <span className="text-slate-900 dark:text-white font-medium">
+              <span className="text-slate-900 font-medium">
                 AED {product.buyoutProcessingFee.toLocaleString()}
               </span>
             </div>
           )}
           <div className="flex justify-between text-sm">
             <span className="text-slate-500">Customer profile</span>
-            <span className="text-slate-900 dark:text-white font-medium">
+            <span className="text-slate-900 font-medium">
               {product.customerSegments?.[0]?.profile || '-'}
             </span>
           </div>
@@ -189,16 +190,16 @@ function ProductDetailsSidePanel({
 
         {/* Additional information */}
         {product.additionalInformation && (
-          <div className="mt-6 p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+          <div className="mt-6 p-4 bg-slate-50 rounded-lg">
             <div className="text-sm text-slate-500 mb-1">Additional information</div>
-            <div className="text-sm text-slate-900 dark:text-white">
+            <div className="text-sm text-slate-900">
               {product.additionalInformation}
             </div>
           </div>
         )}
 
         {/* Footer */}
-        <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-500">
+        <div className="mt-6 pt-4 border-t border-slate-200 text-xs text-slate-500">
           Last modified: {new Date(product.updatedAt).toLocaleDateString()} {new Date(product.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </div>
       </SidePanelContent>
@@ -231,10 +232,10 @@ function EiborRatesSidePanel({ isOpen, onClose }: { isOpen: boolean; onClose: ()
           {rateItems.map((item) => (
             <div
               key={item.label}
-              className="bg-slate-100 dark:bg-slate-700 rounded-lg p-4"
+              className="bg-slate-100 rounded-lg p-4"
             >
-              <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">{item.label}</div>
-              <div className="text-2xl text-slate-900 dark:text-white">
+              <div className="text-xs text-slate-500 mb-1">{item.label}</div>
+              <div className="text-2xl text-slate-900">
                 {item.value?.toFixed(3) ?? '-'}
               </div>
               <div className="text-xs text-slate-400 mt-1">%</div>
@@ -307,6 +308,8 @@ export default function BankProductsPage() {
   const [search, setSearch] = useState('')
   const [selectedProduct, setSelectedProduct] = useState<BankProduct | null>(null)
   const [showEiborModal, setShowEiborModal] = useState(false)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
 
   // Filters
   const [bankFilter, setBankFilter] = useState<string>()
@@ -328,8 +331,8 @@ export default function BankProductsPage() {
   const [ltvFilterOpen, setLtvFilterOpen] = useState(false)
   const [exclusivityFilterOpen, setExclusivityFilterOpen] = useState(false)
 
-  // Always fetch only active products
-  const { data: products = [] } = useBankProducts({
+  // Always fetch only active products with pagination
+  const { data: paginatedProducts } = useBankProducts({
     isActive: true,
     bankName: bankFilter,
     employmentType: employmentFilter,
@@ -339,7 +342,18 @@ export default function BankProductsPage() {
     rateType: rateTypeFilter,
     isExclusive: exclusivityFilter === 'exclusive' ? true : exclusivityFilter === 'non-exclusive' ? false : undefined,
     ltvMin: ltvFilter ? Number(ltvFilter) : undefined,
+    page,
+    pageSize,
   })
+
+  // Extract products and pagination info from response
+  const products = paginatedProducts?.results || []
+  const pagination = paginatedProducts ? {
+    count: paginatedProducts.count,
+    totalPages: paginatedProducts.totalPages,
+    currentPage: paginatedProducts.currentPage,
+    pageSize: paginatedProducts.pageSize,
+  } : null
 
   // Client-side search filter
   const filteredProducts = useMemo(() => {
@@ -372,6 +386,12 @@ export default function BankProductsPage() {
     setRateTypeFilterOpen(false)
     setLtvFilterOpen(false)
     setExclusivityFilterOpen(false)
+    setPage(1)
+  }
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize)
+    setPage(1)
   }
 
 
@@ -381,14 +401,14 @@ export default function BankProductsPage() {
       <div className="px-6 py-4">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Bank Products</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <h1 className="text-xl font-semibold text-slate-900">Bank Products</h1>
+            <p className="text-sm text-slate-500 mt-1">
               Find the most accurate bank rates and products
             </p>
           </div>
           <button
             onClick={() => setShowEiborModal(true)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
           >
             <TrendingUp className="w-4 h-4" />
             See EIBOR rates
@@ -406,7 +426,7 @@ export default function BankProductsPage() {
                 placeholder="Search..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 pr-4 py-2 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="pl-9 pr-4 py-2 w-64 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -424,10 +444,10 @@ export default function BankProductsPage() {
             {bankFilterOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setBankFilterOpen(false)} />
-                <div className="absolute left-0 mt-1 w-56 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-20 py-1">
+                <div className="absolute left-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-slate-200 z-20 py-1">
                   <button
                     onClick={() => { setBankFilter(undefined); setBankFilterOpen(false) }}
-                    className="w-full px-3 py-2 text-left text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    className="w-full px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50"
                   >
                     All
                   </button>
@@ -435,8 +455,8 @@ export default function BankProductsPage() {
                     <button
                       key={option.value}
                       onClick={() => { setBankFilter(option.value); setBankFilterOpen(false) }}
-                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 ${
-                        bankFilter === option.value ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                        bankFilter === option.value ? 'text-blue-600' : 'text-slate-600'
                       }`}
                     >
                       {option.label}
@@ -458,10 +478,10 @@ export default function BankProductsPage() {
             {employmentFilterOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setEmploymentFilterOpen(false)} />
-                <div className="absolute left-0 mt-1 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-20 py-1">
+                <div className="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-20 py-1">
                   <button
                     onClick={() => { setEmploymentFilter(undefined); setEmploymentFilterOpen(false) }}
-                    className="w-full px-3 py-2 text-left text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    className="w-full px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50"
                   >
                     All
                   </button>
@@ -469,8 +489,8 @@ export default function BankProductsPage() {
                     <button
                       key={option.value}
                       onClick={() => { setEmploymentFilter(option.value); setEmploymentFilterOpen(false) }}
-                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 ${
-                        employmentFilter === option.value ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                        employmentFilter === option.value ? 'text-blue-600' : 'text-slate-600'
                       }`}
                     >
                       {option.label}
@@ -492,10 +512,10 @@ export default function BankProductsPage() {
             {residencyFilterOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setResidencyFilterOpen(false)} />
-                <div className="absolute left-0 mt-1 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-20 py-1">
+                <div className="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-20 py-1">
                   <button
                     onClick={() => { setResidencyFilter(undefined); setResidencyFilterOpen(false) }}
-                    className="w-full px-3 py-2 text-left text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    className="w-full px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50"
                   >
                     All
                   </button>
@@ -503,8 +523,8 @@ export default function BankProductsPage() {
                     <button
                       key={option.value}
                       onClick={() => { setResidencyFilter(option.value); setResidencyFilterOpen(false) }}
-                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 ${
-                        residencyFilter === option.value ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                        residencyFilter === option.value ? 'text-blue-600' : 'text-slate-600'
                       }`}
                     >
                       {option.label}
@@ -526,10 +546,10 @@ export default function BankProductsPage() {
             {mortgageFilterOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setMortgageFilterOpen(false)} />
-                <div className="absolute left-0 mt-1 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-20 py-1">
+                <div className="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-20 py-1">
                   <button
                     onClick={() => { setMortgageFilter(undefined); setMortgageFilterOpen(false) }}
-                    className="w-full px-3 py-2 text-left text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    className="w-full px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50"
                   >
                     All
                   </button>
@@ -537,8 +557,8 @@ export default function BankProductsPage() {
                     <button
                       key={option.value}
                       onClick={() => { setMortgageFilter(option.value); setMortgageFilterOpen(false) }}
-                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 ${
-                        mortgageFilter === option.value ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                        mortgageFilter === option.value ? 'text-blue-600' : 'text-slate-600'
                       }`}
                     >
                       {option.label}
@@ -560,10 +580,10 @@ export default function BankProductsPage() {
             {transactionFilterOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setTransactionFilterOpen(false)} />
-                <div className="absolute left-0 mt-1 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-20 py-1">
+                <div className="absolute left-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 z-20 py-1">
                   <button
                     onClick={() => { setTransactionFilter(undefined); setTransactionFilterOpen(false) }}
-                    className="w-full px-3 py-2 text-left text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    className="w-full px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50"
                   >
                     All
                   </button>
@@ -571,8 +591,8 @@ export default function BankProductsPage() {
                     <button
                       key={option.value}
                       onClick={() => { setTransactionFilter(option.value); setTransactionFilterOpen(false) }}
-                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 ${
-                        transactionFilter === option.value ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                        transactionFilter === option.value ? 'text-blue-600' : 'text-slate-600'
                       }`}
                     >
                       {option.label}
@@ -594,10 +614,10 @@ export default function BankProductsPage() {
             {rateTypeFilterOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setRateTypeFilterOpen(false)} />
-                <div className="absolute left-0 mt-1 w-40 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-20 py-1">
+                <div className="absolute left-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-slate-200 z-20 py-1">
                   <button
                     onClick={() => { setRateTypeFilter(undefined); setRateTypeFilterOpen(false) }}
-                    className="w-full px-3 py-2 text-left text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    className="w-full px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50"
                   >
                     All
                   </button>
@@ -605,8 +625,8 @@ export default function BankProductsPage() {
                     <button
                       key={option.value}
                       onClick={() => { setRateTypeFilter(option.value); setRateTypeFilterOpen(false) }}
-                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 ${
-                        rateTypeFilter === option.value ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                        rateTypeFilter === option.value ? 'text-blue-600' : 'text-slate-600'
                       }`}
                     >
                       {option.label}
@@ -628,10 +648,10 @@ export default function BankProductsPage() {
             {ltvFilterOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setLtvFilterOpen(false)} />
-                <div className="absolute left-0 mt-1 w-40 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-20 py-1">
+                <div className="absolute left-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-slate-200 z-20 py-1">
                   <button
                     onClick={() => { setLtvFilter(undefined); setLtvFilterOpen(false) }}
-                    className="w-full px-3 py-2 text-left text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    className="w-full px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50"
                   >
                     All
                   </button>
@@ -639,8 +659,8 @@ export default function BankProductsPage() {
                     <button
                       key={option.value}
                       onClick={() => { setLtvFilter(option.value); setLtvFilterOpen(false) }}
-                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 ${
-                        ltvFilter === option.value ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                        ltvFilter === option.value ? 'text-blue-600' : 'text-slate-600'
                       }`}
                     >
                       {option.label}
@@ -662,10 +682,10 @@ export default function BankProductsPage() {
             {exclusivityFilterOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setExclusivityFilterOpen(false)} />
-                <div className="absolute left-0 mt-1 w-44 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-20 py-1">
+                <div className="absolute left-0 mt-1 w-44 bg-white rounded-lg shadow-lg border border-slate-200 z-20 py-1">
                   <button
                     onClick={() => { setExclusivityFilter(undefined); setExclusivityFilterOpen(false) }}
-                    className="w-full px-3 py-2 text-left text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                    className="w-full px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50"
                   >
                     All
                   </button>
@@ -673,8 +693,8 @@ export default function BankProductsPage() {
                     <button
                       key={option.value}
                       onClick={() => { setExclusivityFilter(option.value); setExclusivityFilterOpen(false) }}
-                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 ${
-                        exclusivityFilter === option.value ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                        exclusivityFilter === option.value ? 'text-blue-600' : 'text-slate-600'
                       }`}
                     >
                       {option.label}
@@ -688,7 +708,7 @@ export default function BankProductsPage() {
           {hasFilters && (
             <button
               onClick={clearFilters}
-              className="flex items-center gap-1 px-2 py-1.5 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              className="flex items-center gap-1 px-2 py-1.5 text-sm text-slate-500 hover:text-slate-700"
             >
               <X className="w-3.5 h-3.5" />
               Clear
@@ -701,51 +721,51 @@ export default function BankProductsPage() {
       {/* Table */}
       <div className="flex-1 overflow-auto">
         <table className="w-full">
-          <thead className="sticky top-0 bg-slate-100 dark:bg-slate-800 z-10">
-            <tr className="border-b border-slate-200 dark:border-slate-700">
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <thead className="sticky top-0 bg-slate-100 z-10">
+            <tr className="border-b border-slate-200">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Bank
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Product Info
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Mortgage type
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Transaction type
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Interest
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Bank fees
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 Follow on rate
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+          <tbody className="divide-y divide-slate-100">
             {filteredProducts.map((product) => (
               <tr
                 key={product.id}
                 onClick={() => setSelectedProduct(product)}
-                className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                className="hover:bg-slate-50 cursor-pointer"
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     {product.bankIcon ? (
                       <img src={product.bankIcon} alt={product.bankName} className="w-8 h-8 rounded" />
                     ) : (
-                      <div className="w-8 h-8 rounded bg-slate-200 dark:bg-slate-600 flex items-center justify-center text-slate-500 text-xs font-medium">
+                      <div className="w-8 h-8 rounded bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-medium">
                         {product.bankName.charAt(0)}
                       </div>
                     )}
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="text-sm text-slate-900 dark:text-white max-w-[200px]">
+                  <div className="text-sm text-slate-900 max-w-[200px]">
                     <div className="font-medium">
                       {product.typeOfMortgage === 'ISLAMIC' ? 'Islamic' : 'Conventional'} – {product.customerSegments?.[0]?.type_of_account || 'Standard'}
                     </div>
@@ -764,21 +784,21 @@ export default function BankProductsPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="px-2 py-0.5 text-xs font-medium rounded bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                  <span className="px-2 py-0.5 text-xs font-medium rounded bg-slate-100 text-slate-600">
                     {product.typeOfTransaction}
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="text-sm text-slate-900 dark:text-white">
+                  <div className="text-sm text-slate-900">
                     {product.interestRate ?? 0}%
                   </div>
                   <div className="text-xs text-slate-500">{product.eiborType}</div>
                 </td>
-                <td className="px-4 py-3 text-sm text-slate-900 dark:text-white">
+                <td className="px-4 py-3 text-sm text-slate-900">
                   {product.mortgageProcessingFee}%
                 </td>
                 <td className="px-4 py-3">
-                  <div className="text-sm text-slate-900 dark:text-white">
+                  <div className="text-sm text-slate-900">
                     {product.followOnRate ?? 0}%
                   </div>
                   <div className="text-xs text-slate-500">{product.eiborType}</div>
@@ -790,6 +810,15 @@ export default function BankProductsPage() {
 
         {filteredProducts.length === 0 && <EmptyState message="No bank products found" />}
       </div>
+
+      {/* Pagination */}
+      {pagination && (
+        <Pagination
+          pagination={pagination}
+          onPageChange={setPage}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      )}
 
       {/* Product details side panel */}
       <ProductDetailsSidePanel

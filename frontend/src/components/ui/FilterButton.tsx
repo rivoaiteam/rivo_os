@@ -16,8 +16,8 @@ export function FilterButton({ label, value, isOpen, onClick }: FilterButtonProp
       className={`
         flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors
         ${hasValue
-          ? 'text-blue-600 dark:text-blue-400'
-          : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+          ? 'text-blue-600'
+          : 'text-slate-500 hover:text-slate-700'
         }
       `}
     >

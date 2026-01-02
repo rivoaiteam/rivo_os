@@ -4,6 +4,7 @@
 
 import api from './client'
 import type { Source, SubSource, User, BankProduct, BankProductFilters, EiborRatesLatest, FixedChannelType, SystemSettings } from '@/types/settings'
+import type { PaginatedResponse } from '@/types/common'
 
 // System Settings API
 export const systemSettingsApi = {
@@ -123,7 +124,7 @@ export const usersApi = {
 
 // Bank Products API
 export const bankProductsApi = {
-  async list(filters?: BankProductFilters): Promise<BankProduct[]> {
+  async list(filters?: BankProductFilters): Promise<PaginatedResponse<BankProduct>> {
     const params: Record<string, string> = {}
     if (filters?.isActive !== undefined) params.is_active = String(filters.isActive)
     if (filters?.bankName) params.bank_name = filters.bankName
@@ -134,7 +135,9 @@ export const bankProductsApi = {
     if (filters?.rateType) params.rate_type = filters.rateType
     if (filters?.isExclusive !== undefined) params.is_exclusive = String(filters.isExclusive)
     if (filters?.ltvMin !== undefined) params.ltv_min = String(filters.ltvMin)
-    const response = await api.get<BankProduct[]>('/bank-products/', { params })
+    if (filters?.page !== undefined) params.page = String(filters.page)
+    if (filters?.pageSize !== undefined) params.page_size = String(filters.pageSize)
+    const response = await api.get<PaginatedResponse<BankProduct>>('/bank-products/', { params })
     return response.data
   },
 

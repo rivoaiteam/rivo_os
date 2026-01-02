@@ -6,6 +6,8 @@ export { ActivityView } from './ActivityView'
 export { SectionHeader, InfoField, InfoTextArea } from './InfoBox'
 export { EmptyState } from './EmptyState'
 export { SlaTimer } from './SlaTimer'
+export { Pagination } from './Pagination'
+export type { PaginationInfo } from './Pagination'
 export {
   FORM_FIELD_CLASSES,
   FieldLabel,

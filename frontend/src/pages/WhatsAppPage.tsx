@@ -25,12 +25,12 @@ function ConversationItem({
       onClick={onClick}
       className={`w-full flex items-start gap-3 p-3 text-left transition-colors ${
         isSelected
-          ? 'bg-slate-100 dark:bg-slate-700'
-          : 'hover:bg-slate-50 dark:hover:bg-slate-800'
+          ? 'bg-slate-100'
+          : 'hover:bg-slate-50'
       }`}
     >
       {/* Avatar with initials */}
-      <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-slate-400 dark:bg-slate-500">
+      <div className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-slate-400">
         <span className="text-white font-medium text-sm">
           {conversation.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
         </span>
@@ -39,10 +39,10 @@ function ConversationItem({
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between gap-2">
-          <span className="font-medium text-sm text-slate-900 dark:text-white truncate">
+          <span className="font-medium text-sm text-slate-900 truncate">
             {conversation.name}
           </span>
-          <span className="text-xs text-slate-400 dark:text-slate-500 flex-shrink-0">
+          <span className="text-xs text-slate-400 flex-shrink-0">
             {formatDistanceToNow(new Date(conversation.lastMessageTime), { addSuffix: true })}
           </span>
         </div>
@@ -50,7 +50,7 @@ function ConversationItem({
           {conversation.lastMessageDirection === 'outbound' && (
             <span className="text-xs text-slate-400">You: </span>
           )}
-          <p className="text-sm text-slate-500 dark:text-slate-400 truncate">
+          <p className="text-sm text-slate-500 truncate">
             {conversation.lastMessage}
           </p>
         </div>
@@ -72,12 +72,12 @@ export function WhatsAppPage() {
   )
 
   return (
-    <div className="h-full flex rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+    <div className="h-full flex rounded-xl overflow-hidden border border-slate-200">
       {/* Conversation List */}
-      <div className="w-80 flex-shrink-0 border-r-2 border-slate-300 dark:border-slate-600 flex flex-col bg-white dark:bg-slate-800">
+      <div className="w-80 flex-shrink-0 border-r-2 border-slate-300 flex flex-col bg-white">
         {/* Header */}
-        <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-          <h1 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">
+        <div className="p-4 border-b border-slate-200">
+          <h1 className="text-lg font-semibold text-slate-900 mb-3">
             WhatsApp
           </h1>
           {/* Search */}
@@ -88,7 +88,7 @@ export function WhatsAppPage() {
               placeholder="Search conversations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm bg-slate-100 dark:bg-slate-700 border-0 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full pl-9 pr-3 py-2 text-sm bg-slate-100 border-0 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
         </div>
@@ -114,7 +114,7 @@ export function WhatsAppPage() {
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100 dark:divide-slate-700">
+            <div className="divide-y divide-slate-100">
               {filteredConversations.map((conversation) => (
                 <ConversationItem
                   key={`${conversation.entityType}-${conversation.entityId}`}
@@ -132,7 +132,7 @@ export function WhatsAppPage() {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col bg-slate-50 dark:bg-slate-900">
+      <div className="flex-1 flex flex-col bg-slate-50">
         {selectedConversation ? (
           <WhatsAppChat
             entityType={selectedConversation.entityType}

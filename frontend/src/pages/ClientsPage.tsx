@@ -11,9 +11,10 @@ import type { CallOutcome as CaseCallOutcome, BankFormType, Case } from '@/types
 import { useClients, useClient, useLogClientCall, useAddClientNote, useMarkNotProceeding, useMarkNotEligible, useUploadDocument, useDeleteDocument, useCreateClient, useUpdateClient, useCreateCase } from '@/hooks/useClients'
 import { useCase, useLogCaseCall, useAddCaseNote, useAdvanceStage, useDeclineCase, useWithdrawCase, useUploadBankForm, useDeleteBankForm, useUpdateCase } from '@/hooks/useCases'
 import { useBankProducts } from '@/hooks/useSettings'
+import { usePagination } from '@/hooks/usePagination'
 import { ClientSidePanel } from '@/components/clients'
 import { CaseSidePanel } from '@/components/cases'
-import { TabButton, NoteAction, PhoneAction, RowActionsDropdown, CasesDropdown, EmptyState, SlaTimer } from '@/components/ui'
+import { TabButton, NoteAction, PhoneAction, RowActionsDropdown, CasesDropdown, EmptyState, SlaTimer, Pagination } from '@/components/ui'
 
 type TabType = 'active' | 'all'
 
@@ -25,6 +26,9 @@ export default function ClientsPage() {
   const [initialPanelTab, setInitialPanelTab] = useState<'profile' | 'documents' | 'activity'>('profile')
   const [showCreatePanel, setShowCreatePanel] = useState(false)
   const [selectedCaseId, setSelectedCaseId] = useState<number | null>(null)
+
+  // Pagination
+  const { page, pageSize, setPage, setPageSize, resetPage, getPaginationInfo } = usePagination()
 
   // Handle URL parameter for opening client from converted lead link
   useEffect(() => {
@@ -40,18 +44,30 @@ export default function ClientsPage() {
     }
   }, [searchParams, setSearchParams])
 
-  // Always fetch all clients (for accurate counts), then filter locally
-  const { data: allClients = [], isLoading: isLoadingClients } = useClients({
+  // Build filters with pagination and status
+  const filters = useMemo(() => ({
     search: searchQuery || undefined,
-  })
+    status: activeTab === 'active' ? 'active' as const : undefined,
+    page,
+    pageSize,
+  }), [searchQuery, activeTab, page, pageSize])
 
-  // Filter clients based on active tab
-  const clients = useMemo(() => {
-    if (activeTab === 'active') {
-      return allClients.filter((c) => c.status === 'active')
-    }
-    return allClients
-  }, [allClients, activeTab])
+  const { data: paginatedClients } = useClients(filters)
+
+  // Extract clients and pagination info from response
+  const clients = paginatedClients?.results || []
+  const pagination = getPaginationInfo(paginatedClients)
+
+  // Reset to page 1 when filters change
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab)
+    resetPage()
+  }
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query)
+    resetPage()
+  }
 
   // Fetch full detail only when a client is selected
   const { data: selectedClient } = useClient(selectedClientId)
@@ -68,7 +84,8 @@ export default function ClientsPage() {
 
   // Case-related data and mutations for the case side panel overlay
   const { data: selectedCase } = useCase(selectedCaseId)
-  const { data: bankProducts = [] } = useBankProducts()
+  const { data: bankProductsData } = useBankProducts()
+  const bankProducts = bankProductsData?.results ?? []
   const logCaseCall = useLogCaseCall()
   const addCaseNote = useAddCaseNote()
   const advanceStage = useAdvanceStage()
@@ -92,15 +109,7 @@ export default function ClientsPage() {
     return Array.from(uniqueBanks.values())
   }, [bankProducts])
 
-  // Get counts for tabs - calculated from all clients so counts are stable
-  const { activeCount, allCount } = useMemo(() => {
-    return {
-      activeCount: allClients.filter((c) => c.status === 'active').length,
-      allCount: allClients.length,
-    }
-  }, [allClients])
-
-  // Sort clients - newest first
+  // Sort clients - newest first (server already sorts, but just in case)
   const sortedClients = useMemo(() => {
     return [...clients].sort((a, b) => {
       const dateA = new Date(a.createdAt).getTime()
@@ -191,7 +200,7 @@ export default function ClientsPage() {
   const getStatusBadge = (status: ClientStatus) => {
     const config: Record<ClientStatus, { label: string; color: string }> = {
       active: { label: 'Active', color: 'bg-emerald-100 text-emerald-700' },
-      notProceeding: { label: 'Not Proceeding', color: 'bg-slate-200 text-slate-500' },
+      notProceeding: { label: 'Withdrawn', color: 'bg-slate-200 text-slate-500' },
       notEligible: { label: 'Not Eligible', color: 'bg-red-100 text-red-700' },
     }
     return (
@@ -213,8 +222,8 @@ export default function ClientsPage() {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Clients</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <h1 className="text-xl font-semibold text-slate-900">Clients</h1>
+              <p className="text-sm text-slate-500 mt-1">
                 Track client eligibility and documents
               </p>
             </div>
@@ -236,8 +245,8 @@ export default function ClientsPage() {
                   type="text"
                   placeholder="Search..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-4 py-2 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-9 pr-4 py-2 w-64 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -245,15 +254,15 @@ export default function ClientsPage() {
               <div className="flex items-center">
                 <TabButton
                   active={activeTab === 'active'}
-                  onClick={() => setActiveTab('active')}
-                  count={isLoadingClients ? undefined : activeCount}
+                  onClick={() => handleTabChange('active')}
+                  count={activeTab === 'active' && pagination ? pagination.count : undefined}
                 >
                   Active
                 </TabButton>
                 <TabButton
                   active={activeTab === 'all'}
-                  onClick={() => setActiveTab('all')}
-                  count={isLoadingClients ? undefined : allCount}
+                  onClick={() => handleTabChange('all')}
+                  count={activeTab === 'all' && pagination ? pagination.count : undefined}
                 >
                   All
                 </TabButton>
@@ -266,40 +275,40 @@ export default function ClientsPage() {
         {/* Table */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
           <table className="w-full">
-            <thead className="sticky top-0 bg-slate-100 dark:bg-slate-800 z-10">
-              <tr className="border-b border-slate-200 dark:border-slate-700">
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <thead className="sticky top-0 bg-slate-100 z-10">
+              <tr className="border-b border-slate-200">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Client
                 </th>
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Source
                 </th>
                 {activeTab === 'all' && (
-                  <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     Status
                   </th>
                 )}
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   DBR / LTV
                 </th>
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Max Loan
                 </th>
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Last Activity
                 </th>
                 <th className="w-24 px-2 py-3"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+            <tbody className="divide-y divide-slate-100">
               {sortedClients.map((client) => (
                 <tr
                   key={client.id}
                   onClick={() => handleRowClick(client)}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer group"
+                  className="hover:bg-slate-50 cursor-pointer group"
                 >
                   <td className="px-3 py-3 align-middle">
-                    <div className="text-sm text-slate-900 dark:text-white truncate">
+                    <div className="text-sm text-slate-900 truncate">
                       {client.firstName} {client.lastName}
                     </div>
                     {client.sourceSlaMin && !client.hasActivity && (
@@ -309,7 +318,7 @@ export default function ClientsPage() {
                     )}
                   </td>
                   <td className="px-3 py-3 align-middle">
-                    <span className="text-sm text-slate-600 dark:text-slate-300 truncate block">
+                    <span className="text-sm text-slate-600 truncate block">
                       {client.sourceDisplay || '—'}
                     </span>
                   </td>
@@ -319,17 +328,17 @@ export default function ClientsPage() {
                     </td>
                   )}
                   <td className="px-3 py-3 align-middle">
-                    <span className="text-sm text-slate-600 dark:text-slate-300">
+                    <span className="text-sm text-slate-600">
                       {formatPercent(client.estimatedDbr)} / {formatPercent(client.estimatedLtv)}
                     </span>
                   </td>
                   <td className="px-3 py-3 align-middle">
-                    <span className="text-sm text-slate-600 dark:text-slate-300">
+                    <span className="text-sm text-slate-600">
                       {client.maxLoanAmount ? `AED ${client.maxLoanAmount.toLocaleString()}` : '—'}
                     </span>
                   </td>
                   <td className="px-3 py-3 align-middle">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
+                    <span className="text-sm text-slate-500">
                       {formatDistanceToNow(new Date(client.updatedAt || client.createdAt), { addSuffix: true })}
                     </span>
                   </td>
@@ -352,16 +361,16 @@ export default function ClientsPage() {
                             <RowActionsDropdown
                               actions={[
                                 {
-                                  label: 'Create Case',
+                                  label: 'Convert',
                                   onClick: () => handleCreateCase(client.id),
                                   variant: 'success',
                                   placeholder: 'Notes before handover?',
                                 },
                                 {
-                                  label: 'Not Proceeding',
+                                  label: 'Withdrawn',
                                   onClick: (notes?: string) => handleMarkNotProceeding(client.id, notes),
                                   variant: 'warning' as const,
-                                  placeholder: 'Reason for not proceeding?',
+                                  placeholder: 'Reason for withdrawal?',
                                 },
                                 {
                                   label: 'Not Eligible',
@@ -385,6 +394,15 @@ export default function ClientsPage() {
             <EmptyState message="No clients found" />
           )}
         </div>
+
+        {/* Pagination */}
+        {pagination && (
+          <Pagination
+            pagination={pagination}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+          />
+        )}
       </div>
 
       {/* Side Panel - View Mode */}
@@ -434,6 +452,7 @@ export default function ClientsPage() {
           onUpdate={(data) => handleCaseUpdate(selectedCase.id, data)}
           initialTab="case"
           banks={banks}
+          viewOnly
         />
       )}
     </div>

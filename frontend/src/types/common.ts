@@ -16,3 +16,19 @@ export interface Note {
   content: string
   timestamp: string
 }
+
+// Paginated API response
+export interface PaginatedResponse<T> {
+  count: number
+  totalPages: number
+  currentPage: number
+  pageSize: number
+  next: string | null
+  previous: string | null
+  results: T[]
+}
+
+export interface PaginationParams {
+  page?: number
+  pageSize?: number
+}

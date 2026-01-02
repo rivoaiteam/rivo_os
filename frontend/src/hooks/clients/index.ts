@@ -33,10 +33,10 @@ export function useAddClientNote() {
 }
 
 /**
- * Mark client as not proceeding (terminal status)
+ * Mark client as withdrawn (terminal status)
  * Uses generic useUpdateStatus with 'client' entity type
  *
- * Usage: markNotProceeding.mutate({ entityId: clientId, status: 'not_proceeding', notes: '...' })
+ * Usage: markNotProceeding.mutate({ entityId: clientId, status: 'notProceeding', notes: '...' })
  */
 export function useMarkNotProceeding() {
   return useGenericUpdateStatus('client')

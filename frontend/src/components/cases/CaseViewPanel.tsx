@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react'
-import { FileText, Upload, ExternalLink, Phone, GitCommit, X, Pencil } from 'lucide-react'
+import { FileText, ExternalLink, Phone, GitCommit, X, Pencil } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import type { Case, CallOutcome, BankFormType, CaseStage, ApplicationType, MortgageType, Emirate, TransactionType, PropertyStatus, RateType, RateTerm } from '@/types/cases'
 import { STAGE_LABELS, EMIRATE_LABELS, BANK_FORM_LABELS, ACTIVE_STAGES, TERMINAL_STAGES } from '@/types/cases'
@@ -12,7 +12,6 @@ import { SidePanel, SidePanelTabs, SidePanelContent } from '@/components/ui/Side
 import { EntityActions } from '@/components/shared'
 import { SectionHeader, InfoField } from '@/components/ui/InfoBox'
 import { DocumentList, type DocumentItem } from '@/components/ui/DocumentList'
-import { detectBankFormType } from '@/utils/documentDetection'
 
 interface BankInfo {
   name: string
@@ -36,9 +35,10 @@ interface CaseViewPanelProps {
   onViewClient?: (clientId: number) => void
   initialTab?: TabType
   banks?: BankInfo[]
+  viewOnly?: boolean  // Hide all actions when viewing from another tab
 }
 
-const INPUT_CLASSES = 'w-full px-3 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-blue-500'
+const INPUT_CLASSES = 'w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500'
 
 const TABS = [
   { id: 'case', label: 'Case' },
@@ -61,6 +61,7 @@ export function CaseViewPanel({
   onViewClient,
   initialTab = 'case',
   banks = [],
+  viewOnly = false,
 }: CaseViewPanelProps) {
   // Local UI state only
   const [activeTab, setActiveTab] = useState<TabType>(initialTab)
@@ -74,6 +75,15 @@ export function CaseViewPanel({
   const ltv = caseData.estimatedPropertyValue > 0
     ? (caseData.loanAmount / caseData.estimatedPropertyValue * 100)
     : 0
+
+  // Calculate next stage label
+  const currentStageIndex = ACTIVE_STAGES.indexOf(caseData.stage)
+  const nextStage = currentStageIndex >= 0 && currentStageIndex < ACTIVE_STAGES.length - 1
+    ? ACTIVE_STAGES[currentStageIndex + 1]
+    : currentStageIndex === ACTIVE_STAGES.length - 1
+      ? 'disbursed' as CaseStage
+      : null
+  const nextStageLabel = nextStage ? STAGE_LABELS[nextStage] : undefined
 
   const getStageColor = (stage: CaseStage) => {
     if (stage === 'disbursed') return 'bg-emerald-100 text-emerald-700'
@@ -120,32 +130,15 @@ export function CaseViewPanel({
     setEditData(prev => ({ ...prev, [field]: value }))
   }
 
-  // File upload handler
-  const uploadFiles = (files: FileList) => {
-    const assignedTypes = new Set<BankFormType>()
-
-    Array.from(files).forEach(file => {
-      let detectedType = detectBankFormType(file.name)
-
-      if (detectedType !== 'other' && assignedTypes.has(detectedType)) {
-        detectedType = 'other'
-      }
-
-      if (detectedType !== 'other') {
-        assignedTypes.add(detectedType)
-      }
-
-      onUploadBankForm(detectedType, file)
-    })
-  }
-
   // Header actions
   const headerActions = (
     <EntityActions
       entityType="case"
       phone={caseData.client.phone}
+      viewOnly={viewOnly}
       isTerminal={isTerminal}
       clientId={caseData.client.id}
+      nextStageLabel={nextStageLabel}
       onAddNote={onAddNote}
       onLogCall={onLogCall}
       onGoToClient={onViewClient}
@@ -200,7 +193,7 @@ export function CaseViewPanel({
             <DocumentsTab
               caseData={caseData}
               isActive={isActive}
-              onUploadFiles={uploadFiles}
+              onUploadBankForm={onUploadBankForm}
               onPreviewDoc={setPreviewDoc}
               onDeleteBankForm={onDeleteBankForm}
             />
@@ -256,7 +249,7 @@ function CaseTab({ caseData, isEditing, editData, isTerminal, ltv, banks, onStar
       {!isTerminal && (
         <button
           onClick={onStartEdit}
-          className="absolute top-0 right-0 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          className="absolute top-0 right-0 p-1 rounded hover:bg-slate-100 transition-colors"
           title="Edit Case"
         >
           <Pencil className="w-3.5 h-3.5 text-slate-400" />
@@ -291,7 +284,7 @@ function CaseTab({ caseData, isEditing, editData, isTerminal, ltv, banks, onStar
           <InfoField label="Loan Amount" value={`AED ${caseData.loanAmount.toLocaleString()}`} />
           <InfoField label="Mortgage Term" value={`${caseData.mortgageTermYears}y ${caseData.mortgageTermMonths}m`} />
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">LTV</label>
+            <label className="block text-xs text-slate-500 mb-1">LTV</label>
             <p className={`text-sm font-medium ${ltv > 80 ? 'text-red-600' : 'text-green-600'}`}>
               {ltv.toFixed(1)}%
             </p>
@@ -305,7 +298,7 @@ function CaseTab({ caseData, isEditing, editData, isTerminal, ltv, banks, onStar
         {caseData.bankName ? (
           <div className="grid grid-cols-2 gap-x-3 gap-y-4">
             <div>
-              <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Bank</label>
+              <label className="block text-xs text-slate-500 mb-1">Bank</label>
               <div className="flex items-center gap-2">
                 {banks.find(b => b.name === caseData.bankName)?.icon ? (
                   <img
@@ -314,11 +307,11 @@ function CaseTab({ caseData, isEditing, editData, isTerminal, ltv, banks, onStar
                     className="w-6 h-6 object-contain"
                   />
                 ) : (
-                  <span className="w-6 h-6 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded text-[10px] font-medium text-slate-500">
+                  <span className="w-6 h-6 flex items-center justify-center bg-slate-100 rounded text-[10px] font-medium text-slate-500">
                     {caseData.bankName.slice(0, 2).toUpperCase()}
                   </span>
                 )}
-                <span className="text-sm font-medium text-slate-900 dark:text-white">{caseData.bankName}</span>
+                <span className="text-sm font-medium text-slate-900">{caseData.bankName}</span>
               </div>
             </div>
             <InfoField label="Mortgage Type" value={caseData.mortgageType === 'islamic' ? 'Islamic' : 'Conventional'} />
@@ -352,7 +345,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
         <SectionHeader>Deal Information</SectionHeader>
         <div className="grid grid-cols-2 gap-x-3 gap-y-4">
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Case Type</label>
+            <label className="block text-xs text-slate-500 mb-1">Case Type</label>
             <select
               value={editData.caseType || ''}
               onChange={(e) => onUpdateField('caseType', e.target.value as 'residential' | 'commercial')}
@@ -363,7 +356,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
             </select>
           </div>
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Service Type</label>
+            <label className="block text-xs text-slate-500 mb-1">Service Type</label>
             <select
               value={editData.serviceType || ''}
               onChange={(e) => onUpdateField('serviceType', e.target.value as 'fullyPackaged' | 'assisted')}
@@ -374,7 +367,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
             </select>
           </div>
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Application</label>
+            <label className="block text-xs text-slate-500 mb-1">Application</label>
             <select
               value={editData.applicationType || ''}
               onChange={(e) => onUpdateField('applicationType', e.target.value as ApplicationType)}
@@ -392,7 +385,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
         <SectionHeader>Property</SectionHeader>
         <div className="grid grid-cols-2 gap-x-3 gap-y-4">
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Emirate</label>
+            <label className="block text-xs text-slate-500 mb-1">Emirate</label>
             <select
               value={editData.emirate || ''}
               onChange={(e) => onUpdateField('emirate', e.target.value as Emirate)}
@@ -404,7 +397,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
             </select>
           </div>
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Transaction Type</label>
+            <label className="block text-xs text-slate-500 mb-1">Transaction Type</label>
             <select
               value={editData.transactionType || ''}
               onChange={(e) => onUpdateField('transactionType', e.target.value as TransactionType)}
@@ -418,7 +411,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
             </select>
           </div>
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Property Status</label>
+            <label className="block text-xs text-slate-500 mb-1">Property Status</label>
             <select
               value={editData.propertyStatus || ''}
               onChange={(e) => onUpdateField('propertyStatus', e.target.value as PropertyStatus)}
@@ -429,7 +422,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
             </select>
           </div>
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Property Value (AED)</label>
+            <label className="block text-xs text-slate-500 mb-1">Property Value (AED)</label>
             <input
               type="number"
               value={editData.estimatedPropertyValue || ''}
@@ -445,7 +438,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
         <SectionHeader>Loan</SectionHeader>
         <div className="grid grid-cols-2 gap-x-3 gap-y-4">
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Loan Amount (AED)</label>
+            <label className="block text-xs text-slate-500 mb-1">Loan Amount (AED)</label>
             <input
               type="number"
               value={editData.loanAmount || ''}
@@ -454,7 +447,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Mortgage Term</label>
+            <label className="block text-xs text-slate-500 mb-1">Mortgage Term</label>
             <div className="grid grid-cols-2 gap-2">
               <div className="relative">
                 <input
@@ -488,7 +481,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
         <SectionHeader>Bank Product</SectionHeader>
         <div className="grid grid-cols-2 gap-x-3 gap-y-4">
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Bank</label>
+            <label className="block text-xs text-slate-500 mb-1">Bank</label>
             <div className="relative">
               <select
                 value={editData.bankName || ''}
@@ -510,7 +503,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
             </div>
           </div>
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Mortgage Type</label>
+            <label className="block text-xs text-slate-500 mb-1">Mortgage Type</label>
             <select
               value={editData.mortgageType || ''}
               onChange={(e) => onUpdateField('mortgageType', e.target.value as MortgageType)}
@@ -521,7 +514,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
             </select>
           </div>
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Rate Type</label>
+            <label className="block text-xs text-slate-500 mb-1">Rate Type</label>
             <select
               value={editData.rateType || ''}
               onChange={(e) => onUpdateField('rateType', e.target.value as RateType)}
@@ -533,7 +526,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
             </select>
           </div>
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Rate %</label>
+            <label className="block text-xs text-slate-500 mb-1">Rate %</label>
             <input
               type="number"
               step="0.01"
@@ -546,7 +539,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
             />
           </div>
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Fixed Period</label>
+            <label className="block text-xs text-slate-500 mb-1">Fixed Period</label>
             <select
               value={editData.fixedPeriodYears || ''}
               onChange={(e) => onUpdateField('fixedPeriodYears', Number(e.target.value) as RateTerm)}
@@ -568,7 +561,7 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
+          className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
         >
           Cancel
         </button>
@@ -587,45 +580,14 @@ function CaseEditForm({ editData, banks, onUpdateField, onCancel, onSave }: Case
 interface DocumentsTabProps {
   caseData: Case
   isActive: boolean
-  onUploadFiles: (files: FileList) => void
+  onUploadBankForm: (type: BankFormType, file: File) => void
   onPreviewDoc: (doc: { url: string; title: string }) => void
   onDeleteBankForm?: (formId: number) => void
 }
 
-function DocumentsTab({ caseData, isActive, onUploadFiles, onPreviewDoc, onDeleteBankForm }: DocumentsTabProps) {
+function DocumentsTab({ caseData, isActive, onUploadBankForm, onPreviewDoc, onDeleteBankForm }: DocumentsTabProps) {
   return (
     <div className="space-y-2">
-      {isActive && (
-        <div className="mb-4">
-          <label className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors border-2 border-dashed border-blue-200 dark:border-blue-800">
-            <Upload className="w-5 h-5" />
-            <span className="text-sm font-medium">Upload Bank Forms</span>
-            <input
-              type="file"
-              multiple
-              accept=".pdf,.jpg,.jpeg,.png"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files) {
-                  onUploadFiles(e.target.files)
-                  e.target.value = ''
-                }
-              }}
-            />
-          </label>
-          <div className="mt-3 p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
-            <p className="text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Name files as:</p>
-            <div className="grid grid-cols-2 gap-1 text-xs text-slate-500 dark:text-slate-400">
-              <span>• opening.pdf</span>
-              <span>• fts.pdf</span>
-              <span>• kfs.pdf</span>
-              <span>• undertaking.pdf</span>
-              <span>• checklist.pdf</span>
-            </div>
-          </div>
-        </div>
-      )}
-
       <DocumentList
         documents={caseData.bankForms as DocumentItem[]}
         labels={BANK_FORM_LABELS}
@@ -635,6 +597,8 @@ function DocumentsTab({ caseData, isActive, onUploadFiles, onPreviewDoc, onDelet
           }
         }}
         onDelete={onDeleteBankForm}
+        onUpload={(type, file) => onUploadBankForm(type as BankFormType, file)}
+        allowUpload={isActive}
       />
     </div>
   )
@@ -685,7 +649,7 @@ function ActivityTab({ caseData }: ActivityTabProps) {
   if (activities.length === 0) {
     return (
       <div className="flex items-center justify-center h-32">
-        <p className="text-sm text-slate-400 dark:text-slate-500">No activity yet</p>
+        <p className="text-sm text-slate-400">No activity yet</p>
       </div>
     )
   }
@@ -703,7 +667,7 @@ function ActivityTab({ caseData }: ActivityTabProps) {
           <div className="flex-1 min-w-0">
             {activity.type === 'stage' && (
               <>
-                <p className="text-sm text-slate-900 dark:text-white">
+                <p className="text-sm text-slate-900">
                   {activity.data.fromStage ? (
                     <>
                       Stage changed from{' '}
@@ -716,7 +680,7 @@ function ActivityTab({ caseData }: ActivityTabProps) {
                   )}
                 </p>
                 {!activity.data.fromStage && activity.data.notes && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  <p className="text-xs text-slate-500 mt-1">
                     {activity.data.notes}
                   </p>
                 )}
@@ -724,23 +688,23 @@ function ActivityTab({ caseData }: ActivityTabProps) {
             )}
 
             {activity.type === 'note' && (
-              <p className="text-sm text-slate-900 dark:text-white">{activity.data.content}</p>
+              <p className="text-sm text-slate-900">{activity.data.content}</p>
             )}
 
             {activity.type === 'call' && (
               <>
-                <p className="text-sm text-slate-900 dark:text-white">
+                <p className="text-sm text-slate-900">
                   Call - <span className="capitalize">{activity.data.outcome}</span>
                 </p>
                 {activity.data.notes && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  <p className="text-xs text-slate-500 mt-1">
                     {activity.data.notes}
                   </p>
                 )}
               </>
             )}
 
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+            <p className="text-xs text-slate-400 mt-1">
               {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
             </p>
           </div>
@@ -762,22 +726,22 @@ function DocumentPreview({ url, title, onClose }: DocumentPreviewProps) {
   return (
     <div className="fixed inset-0 z-[60]">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <div className="absolute top-0 right-0 h-full w-[420px] bg-white dark:bg-slate-800 shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex-shrink-0">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white truncate">{title}</h3>
+      <div className="absolute top-0 right-0 h-full w-1/2 bg-white shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 flex-shrink-0">
+          <h3 className="text-lg font-semibold text-slate-900 truncate">{title}</h3>
           <div className="flex items-center gap-1 flex-shrink-0">
             <a
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
               title="Open in new tab"
             >
               <ExternalLink className="w-5 h-5" />
             </a>
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
               title="Close"
             >
               <X className="w-5 h-5" />
@@ -785,7 +749,7 @@ function DocumentPreview({ url, title, onClose }: DocumentPreviewProps) {
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto bg-slate-100 dark:bg-slate-900">
+        <div className="flex-1 overflow-auto bg-slate-100">
           {isPdf ? (
             <iframe src={url} className="w-full h-full" title={title} />
           ) : (

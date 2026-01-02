@@ -340,7 +340,7 @@ class Lead(models.Model):
 
     STATUS_CHOICES = [
         ('new', 'New'),
-        ('dropped', 'Dropped'),
+        ('dropped', 'Not Eligible'),
         ('converted', 'Converted'),
     ]
 
@@ -405,7 +405,7 @@ class Client(models.Model):
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('converted', 'Converted'),
-        ('notProceeding', 'Not Proceeding'),
+        ('notProceeding', 'Withdrawn'),
         ('notEligible', 'Not Eligible'),
     ]
 
@@ -497,8 +497,12 @@ class Client(models.Model):
                 self.max_loan_amount = Decimal('0')
 
         # Determine eligibility
+        # DBR threshold: 50% for all
         dbr_ok = self.estimated_dbr is None or self.estimated_dbr <= 50
-        ltv_ok = self.estimated_ltv is None or self.estimated_ltv <= 80
+
+        # LTV threshold: 85% for UAE Nationals (citizen), 80% for others
+        ltv_limit = 85 if self.residency_status == 'citizen' else 80
+        ltv_ok = self.estimated_ltv is None or self.estimated_ltv <= ltv_limit
 
         if dbr_ok and ltv_ok:
             self.eligibility_status = 'eligible'
@@ -793,7 +797,7 @@ class LeadStatusChange(models.Model):
 
     TYPE_CHOICES = [
         ('converted_to_client', 'Converted to Client'),
-        ('dropped', 'Dropped'),
+        ('dropped', 'Not Eligible'),
     ]
 
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='status_changes')
@@ -816,7 +820,7 @@ class ClientStatusChange(models.Model):
         ('converted_from_lead', 'Converted from Lead'),
         ('converted_to_case', 'Converted to Case'),
         ('not_eligible', 'Not Eligible'),
-        ('not_proceeding', 'Not Proceeding'),
+        ('not_proceeding', 'Withdrawn'),
     ]
 
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='status_changes')

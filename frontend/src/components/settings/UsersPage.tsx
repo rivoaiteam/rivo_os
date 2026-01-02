@@ -66,7 +66,7 @@ export function UsersPage() {
       const lastName = lastParts.join(' ')
       // Auto-generate username from name (lowercase, no spaces)
       const username = newName.trim().toLowerCase().replace(/\s+/g, '.')
-      const email = `${username}@rivo.com`
+      const email = `${username}@rivo.ae`
       await createUser.mutateAsync({
         username,
         email,
@@ -133,15 +133,15 @@ export function UsersPage() {
         {/* Header */}
         <button
           onClick={() => navigate('/settings')}
-          className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 mb-4 -ml-1"
+          className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 mb-4 -ml-1"
         >
           <ChevronLeft className="w-4 h-4" />
           Settings
         </button>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Users</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <h1 className="text-xl font-semibold text-slate-900">Users</h1>
+            <p className="text-sm text-slate-500 mt-1">
               Manage team members who can access the dashboard
             </p>
           </div>
@@ -157,11 +157,11 @@ export function UsersPage() {
         </div>
 
         {/* System Password */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 mb-6">
+        <div className="bg-white rounded-lg border border-slate-200 p-4 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-medium text-slate-900 dark:text-white">System Password</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Shared password for all users</p>
+              <h3 className="text-sm font-medium text-slate-900">System Password</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Shared password for all users</p>
             </div>
             {isEditingSystemPassword ? (
               <div className="flex items-center gap-2">
@@ -184,7 +184,7 @@ export function UsersPage() {
                     }}
                     placeholder="Enter system password"
                     autoFocus
-                    className="w-48 px-3 py-1.5 pr-8 text-sm bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-white placeholder-slate-400"
+                    className="w-48 px-3 py-1.5 pr-8 text-sm bg-white border border-slate-300 rounded-md text-slate-900 placeholder-slate-400"
                   />
                   <button
                     type="button"
@@ -219,7 +219,7 @@ export function UsersPage() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-600 dark:text-slate-300">
+                <span className="text-sm text-slate-600">
                   {systemSettings?.systemPassword ? '••••••••' : 'Not set'}
                 </span>
                 <button
@@ -234,10 +234,10 @@ export function UsersPage() {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-700">
+        <div className="bg-white rounded-lg border border-slate-200 divide-y divide-slate-100">
           {/* Add new user row */}
           {isAdding && (
-            <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20">
+            <div className="flex items-center justify-between p-4 bg-blue-50">
               <input
                 type="text"
                 value={newName}
@@ -248,7 +248,7 @@ export function UsersPage() {
                 }}
                 placeholder="Full name"
                 autoFocus
-                className="flex-1 max-w-xs px-3 py-1.5 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex-1 max-w-xs px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-md text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <div className="flex items-center gap-3">
                 <span className="px-2 py-0.5 text-xs font-medium rounded bg-emerald-100 text-emerald-700">
@@ -272,7 +272,7 @@ export function UsersPage() {
               return (
                 <div
                   key={user.id}
-                  className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                  className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
                 >
                   {editingId === user.id ? (
                     <>
@@ -285,13 +285,13 @@ export function UsersPage() {
                           if (e.key === 'Escape') cancelEdit()
                         }}
                         autoFocus
-                        className="flex-1 max-w-xs px-3 py-1.5 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex-1 max-w-xs px-3 py-1.5 text-sm bg-white border border-slate-300 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <div className="flex items-center gap-3">
                         <span className={`px-2 py-0.5 text-xs font-medium rounded ${getStatusStyle(user.status)}`}>
                           {getStatusLabel(user.status)}
                         </span>
-                        <span className="text-sm text-slate-500 dark:text-slate-400">
+                        <span className="text-sm text-slate-500">
                           {formatDate(user.dateJoined)}
                         </span>
                         <EditActionButtons
@@ -304,13 +304,13 @@ export function UsersPage() {
                   ) : (
                     <>
                       <div>
-                        <span className="text-sm font-medium text-slate-900 dark:text-white block">
+                        <span className="text-sm font-medium text-slate-900 block">
                           {displayName}
                         </span>
                         <span className="text-xs text-slate-500">{user.email}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm text-slate-500 dark:text-slate-400">
+                        <span className="text-sm text-slate-500">
                           {formatDate(user.dateJoined)}
                         </span>
                         <button

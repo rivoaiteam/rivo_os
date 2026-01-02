@@ -46,7 +46,7 @@ const DEFAULT_FORM_DATA: Partial<CreateCaseData> = {
   mortgageTermMonths: 0,
 }
 
-const INPUT_CLASSES = 'w-full px-3 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-blue-500'
+const INPUT_CLASSES = 'w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500'
 
 export function CaseCreatePanel({
   isOpen,
@@ -99,7 +99,7 @@ export function CaseCreatePanel({
     <button
       type="button"
       onClick={() => onViewClient(selectedClient.id)}
-      className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+      className="p-1.5 rounded hover:bg-slate-100"
       title="View Client"
     >
       <UserCheck className="w-4 h-4 text-blue-500" />
@@ -112,7 +112,7 @@ export function CaseCreatePanel({
         <SidePanelContent className="space-y-6">
           {/* Client Selection */}
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Client</label>
+            <label className="block text-xs text-slate-500 mb-1">Client</label>
             <select
               value={formData.clientId || ''}
               onChange={(e) => selectClient(Number(e.target.value))}
@@ -135,12 +135,12 @@ export function CaseCreatePanel({
               onClick={() => updateField('caseType', 'residential')}
               className={`flex flex-col items-center gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
                 formData.caseType === 'residential'
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-slate-200 hover:border-slate-300'
               }`}
             >
               <Home className={`w-6 h-6 ${formData.caseType === 'residential' ? 'text-blue-600' : 'text-slate-400'}`} />
-              <span className={`text-sm font-medium ${formData.caseType === 'residential' ? 'text-blue-600' : 'text-slate-600 dark:text-slate-300'}`}>
+              <span className={`text-sm font-medium ${formData.caseType === 'residential' ? 'text-blue-600' : 'text-slate-600'}`}>
                 Residential
               </span>
               {formData.caseType === 'residential' && (
@@ -156,12 +156,12 @@ export function CaseCreatePanel({
               onClick={() => updateField('caseType', 'commercial')}
               className={`flex flex-col items-center gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
                 formData.caseType === 'commercial'
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-slate-200 hover:border-slate-300'
               }`}
             >
               <Building2 className={`w-6 h-6 ${formData.caseType === 'commercial' ? 'text-blue-600' : 'text-slate-400'}`} />
-              <span className={`text-sm font-medium ${formData.caseType === 'commercial' ? 'text-blue-600' : 'text-slate-600 dark:text-slate-300'}`}>
+              <span className={`text-sm font-medium ${formData.caseType === 'commercial' ? 'text-blue-600' : 'text-slate-600'}`}>
                 Commercial
               </span>
               {formData.caseType === 'commercial' && (
@@ -175,7 +175,7 @@ export function CaseCreatePanel({
 
           {/* Application Type */}
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Application Type</label>
+            <label className="block text-xs text-slate-500 mb-1">Application Type</label>
             <select
               value={formData.applicationType}
               onChange={(e) => updateField('applicationType', e.target.value as ApplicationType)}
@@ -225,12 +225,12 @@ export function CaseCreatePanel({
         </SidePanelContent>
 
         {/* Footer */}
-        <div className="flex-shrink-0 px-6 py-4 bg-white dark:bg-slate-800">
+        <div className="flex-shrink-0 px-6 py-4 bg-white">
           <div className="flex gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
+              className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
             >
               Cancel
             </button>
@@ -258,7 +258,7 @@ function ServiceTypeToggle({ value, onChange }: { value: string; onChange: (v: '
         className={`px-2 py-1 text-xs rounded-full transition-all ${
           value === 'fullyPackaged'
             ? 'bg-blue-600 text-white'
-            : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-300'
+            : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
         }`}
       >
         Fully Packaged
@@ -269,7 +269,7 @@ function ServiceTypeToggle({ value, onChange }: { value: string; onChange: (v: '
         className={`px-2 py-1 text-xs rounded-full transition-all ${
           value === 'assisted'
             ? 'bg-blue-600 text-white'
-            : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-300'
+            : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
         }`}
       >
         Assisted
@@ -295,7 +295,7 @@ function PropertySection(props: PropertySectionProps) {
       <SectionHeader>Property</SectionHeader>
       <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Emirate</label>
+          <label className="block text-xs text-slate-500 mb-1">Emirate</label>
           <select
             value={props.emirate}
             onChange={(e) => props.onEmirateChange(e.target.value as Emirate)}
@@ -307,7 +307,7 @@ function PropertySection(props: PropertySectionProps) {
           </select>
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Transaction Type</label>
+          <label className="block text-xs text-slate-500 mb-1">Transaction Type</label>
           <select
             value={props.transactionType}
             onChange={(e) => props.onTransactionTypeChange(e.target.value as TransactionType)}
@@ -321,7 +321,7 @@ function PropertySection(props: PropertySectionProps) {
           </select>
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Property Status</label>
+          <label className="block text-xs text-slate-500 mb-1">Property Status</label>
           <select
             value={props.propertyStatus}
             onChange={(e) => props.onPropertyStatusChange(e.target.value as PropertyStatus)}
@@ -332,7 +332,7 @@ function PropertySection(props: PropertySectionProps) {
           </select>
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Property Value (AED)</label>
+          <label className="block text-xs text-slate-500 mb-1">Property Value (AED)</label>
           <input
             type="number"
             value={props.propertyValue || ''}
@@ -362,7 +362,7 @@ function LoanSection(props: LoanSectionProps) {
       <SectionHeader>Loan</SectionHeader>
       <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Loan Amount (AED)</label>
+          <label className="block text-xs text-slate-500 mb-1">Loan Amount (AED)</label>
           <input
             type="number"
             value={props.loanAmount || ''}
@@ -373,7 +373,7 @@ function LoanSection(props: LoanSectionProps) {
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Mortgage Term</label>
+          <label className="block text-xs text-slate-500 mb-1">Mortgage Term</label>
           <div className="grid grid-cols-2 gap-2">
             <div className="relative">
               <input
@@ -426,7 +426,7 @@ function BankProductSection(props: BankProductSectionProps) {
       <SectionHeader>Bank Product</SectionHeader>
       <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Bank</label>
+          <label className="block text-xs text-slate-500 mb-1">Bank</label>
           <div className="relative">
             <select
               value={props.bankName || ''}
@@ -448,7 +448,7 @@ function BankProductSection(props: BankProductSectionProps) {
           </div>
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Mortgage Type</label>
+          <label className="block text-xs text-slate-500 mb-1">Mortgage Type</label>
           <select
             value={props.mortgageType}
             onChange={(e) => props.onMortgageTypeChange(e.target.value as MortgageType)}
@@ -459,7 +459,7 @@ function BankProductSection(props: BankProductSectionProps) {
           </select>
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Rate Type</label>
+          <label className="block text-xs text-slate-500 mb-1">Rate Type</label>
           <select
             value={props.rateType || ''}
             onChange={(e) => props.onRateTypeChange(e.target.value as RateType)}
@@ -471,7 +471,7 @@ function BankProductSection(props: BankProductSectionProps) {
           </select>
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Rate %</label>
+          <label className="block text-xs text-slate-500 mb-1">Rate %</label>
           <input
             type="number"
             step="0.01"
@@ -484,7 +484,7 @@ function BankProductSection(props: BankProductSectionProps) {
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Fixed Period</label>
+          <label className="block text-xs text-slate-500 mb-1">Fixed Period</label>
           <select
             value={props.fixedPeriodYears || ''}
             onChange={(e) => props.onFixedPeriodChange(Number(e.target.value) as RateTerm)}

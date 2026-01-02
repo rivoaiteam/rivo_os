@@ -16,6 +16,7 @@ from collections import defaultdict
 from core.models import Client, Document, CallLog, Note
 from core.storage import storage_service
 from api.views.mixins import ActivityTrackingMixin
+from api.pagination import StandardPagination
 from api.services import ClientService
 from api.serializers.clients import (
     ClientListSerializer,
@@ -50,7 +51,7 @@ class ClientViewSet(ActivityTrackingMixin, viewsets.ModelViewSet):
 
     activity_entity_type = 'client'
     permission_classes = [IsAuthenticated]
-    pagination_class = None  # Disable pagination - return all clients as array
+    pagination_class = StandardPagination
     queryset = Client.objects.all()
 
     def get_serializer_class(self):
@@ -130,10 +131,28 @@ class ClientViewSet(ActivityTrackingMixin, viewsets.ModelViewSet):
         }
 
     def list(self, request, *args, **kwargs):
-        """Override list to prefetch activities efficiently"""
+        """Override list to prefetch activities efficiently with pagination"""
         queryset = self.filter_queryset(self.get_queryset())
-        client_ids = list(queryset.values_list('id', flat=True))
 
+        # Paginate the queryset
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            client_ids = [client.id for client in page]
+            activities = self._prefetch_activities(client_ids)
+
+            serializer = self.get_serializer(
+                page,
+                many=True,
+                context={
+                    **self.get_serializer_context(),
+                    'prefetched_call_logs': activities['call_logs'],
+                    'prefetched_notes': activities['notes'],
+                }
+            )
+            return self.get_paginated_response(serializer.data)
+
+        # Fallback for no pagination
+        client_ids = list(queryset.values_list('id', flat=True))
         activities = self._prefetch_activities(client_ids)
 
         serializer = self.get_serializer(
@@ -292,7 +311,7 @@ class ClientViewSet(ActivityTrackingMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def mark_not_proceeding(self, request, pk=None):
-        """Mark client as not proceeding - delegates to ClientService"""
+        """Mark client as withdrawn - delegates to ClientService"""
         serializer = MarkNotProceedingSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 

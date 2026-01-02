@@ -248,4 +248,6 @@ export interface BankProductFilters {
   rateType?: InterestRateType
   isExclusive?: boolean
   ltvMin?: number
+  page?: number
+  pageSize?: number
 }

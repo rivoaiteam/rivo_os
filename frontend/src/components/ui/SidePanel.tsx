@@ -46,11 +46,11 @@ export function SidePanel({ isOpen, onClose, title, subtitle, headerActions, chi
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-3">
         <div className="min-w-0 flex-1">
-          <h2 className="text-lg font-medium text-slate-900 dark:text-white truncate">
+          <h2 className="text-lg font-medium text-slate-900 truncate">
             {title}
           </h2>
           {subtitle && (
-            <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{subtitle}</p>
+            <p className="text-sm text-slate-500 truncate">{subtitle}</p>
           )}
         </div>
         <div className="flex items-center gap-1">
@@ -86,8 +86,8 @@ export function SidePanelTabs({ tabs, activeTab, onTabChange }: SidePanelTabsPro
       {tabs.map((tab) => {
         const isActive = activeTab === tab.id
         const colorClasses = tab.color === 'emerald'
-          ? 'text-emerald-600 dark:text-emerald-400 border-emerald-600 dark:border-emerald-400'
-          : 'text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400'
+          ? 'text-emerald-600 border-emerald-600'
+          : 'text-blue-600 border-blue-600'
 
         return (
           <button
@@ -96,7 +96,7 @@ export function SidePanelTabs({ tabs, activeTab, onTabChange }: SidePanelTabsPro
             className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${
               isActive
                 ? `${colorClasses} border-b-2`
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                : 'text-slate-500 hover:text-slate-700'
             }`}
           >
             {tab.label}
@@ -127,9 +127,9 @@ interface SidePanelStatusProps {
 
 export function SidePanelStatus({ status, children }: SidePanelStatusProps) {
   const bgClasses = {
-    success: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300',
+    success: 'bg-emerald-50 text-emerald-700',
     neutral: 'bg-slate-100 text-slate-600',
-    danger: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300',
+    danger: 'bg-red-50 text-red-700',
   }
 
   return (

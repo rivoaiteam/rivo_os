@@ -55,6 +55,7 @@ interface ViewModeProps {
   onViewClient?: (clientId: number, fromPanel: 'case' | 'create') => void
   initialTab?: 'case' | 'documents' | 'activity'
   banks?: BankInfo[]
+  viewOnly?: boolean
 }
 
 type CaseSidePanelProps = CreateModeProps | ViewModeProps
@@ -89,6 +90,7 @@ export function CaseSidePanel(props: CaseSidePanelProps) {
       onViewClient={props.onViewClient ? (id) => props.onViewClient!(id, 'case') : undefined}
       initialTab={props.initialTab}
       banks={props.banks}
+      viewOnly={props.viewOnly}
     />
   )
 }

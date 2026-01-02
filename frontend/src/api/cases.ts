@@ -4,17 +4,20 @@
 
 import api from './client'
 import type { Case, CaseListItem, CaseFilters, CallOutcome, BankFormType, CreateCaseData } from '@/types/cases'
+import type { PaginatedResponse, PaginationParams } from '@/types/common'
 
 export const casesApi = {
-  // Get all cases with optional filters (minimal list data)
-  async list(filters?: CaseFilters): Promise<CaseListItem[]> {
+  // Get paginated cases with optional filters
+  async list(filters?: CaseFilters & PaginationParams): Promise<PaginatedResponse<CaseListItem>> {
     const params = new URLSearchParams()
     if (filters?.stage) params.append('stage', filters.stage)
     if (filters?.status) params.append('status', filters.status)
     if (filters?.client) params.append('client', filters.client.toString())
     if (filters?.search) params.append('search', filters.search)
+    if (filters?.page) params.append('page', filters.page.toString())
+    if (filters?.pageSize) params.append('page_size', filters.pageSize.toString())
 
-    const response = await api.get<CaseListItem[]>(`/cases/?${params.toString()}`)
+    const response = await api.get<PaginatedResponse<CaseListItem>>(`/cases/?${params.toString()}`)
     return response.data
   },
 

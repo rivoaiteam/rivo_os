@@ -33,7 +33,7 @@ export function useAddNote() {
 }
 
 /**
- * Drop a lead (terminal status change)
+ * Mark lead as not eligible (terminal status change)
  * Uses generic useUpdateStatus with 'lead' entity type
  *
  * Usage: dropLead.mutate({ entityId: leadId, status: 'dropped', notes: '...' })

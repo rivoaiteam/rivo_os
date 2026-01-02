@@ -7,10 +7,11 @@ import { Search } from 'lucide-react'
 import { useLeads, useLogCall, useAddNote, useDropLead, useConvertLead, useUpdateLead } from '@/hooks/useLeads'
 import { useClient, useLogClientCall, useAddClientNote, useMarkNotProceeding, useMarkNotEligible, useUploadDocument, useDeleteDocument } from '@/hooks/useClients'
 import { useSources, useSubSources } from '@/hooks/useSettings'
-import type { Lead, LeadStatus, CallOutcome, LeadFilters } from '@/types/leads'
+import type { Lead, LeadStatus, CallOutcome } from '@/types/leads'
 import type { CallOutcome as ClientCallOutcome, DocumentType } from '@/types/clients'
 import { TabButton } from '@/components/ui/TabButton'
 import { FilterButton } from '@/components/ui/FilterButton'
+import { Pagination } from '@/components/ui/Pagination'
 import { SlaTimer } from '@/components/ui/SlaTimer'
 import { NoteAction, PhoneAction, RowActionsDropdown, ClientLink } from '@/components/ui/InlineActions'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -21,7 +22,7 @@ type TabStatus = 'new' | 'all'
 
 const statusConfig: Record<LeadStatus, { label: string; color: string }> = {
   new: { label: 'New', color: 'bg-emerald-100 text-emerald-700' },
-  dropped: { label: 'Dropped', color: 'bg-slate-200 text-slate-500' },
+  dropped: { label: 'Not Eligible', color: 'bg-red-100 text-red-700' },
   converted: { label: 'Converted', color: 'bg-blue-100 text-blue-700' },
 }
 
@@ -45,6 +46,8 @@ export function LeadsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [sourceFilter, setSourceFilter] = useState<string | undefined>()
   const [sourceFilterOpen, setSourceFilterOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
 
   // Lead panel state
   const [selectedLeadId, setSelectedLeadId] = useState<number | null>(null)
@@ -53,21 +56,41 @@ export function LeadsPage() {
   // Client overlay state
   const [clientOverlayId, setClientOverlayId] = useState<number | null>(null)
 
-  // Always fetch all leads (for accurate counts), then filter locally
-  const filters: LeadFilters = useMemo(() => ({
+  // Build filters with pagination
+  const filters = useMemo(() => ({
     source: sourceFilter,
     search: searchQuery || undefined,
-  }), [sourceFilter, searchQuery])
+    status: activeTab === 'new' ? 'new' as const : undefined,
+    page,
+    pageSize,
+  }), [sourceFilter, searchQuery, activeTab, page, pageSize])
 
-  const { data: allLeads = [], error, isLoading: isLoadingLeads } = useLeads(filters)
+  const { data: paginatedLeads, error } = useLeads(filters)
 
-  // Filter leads based on active tab
-  const leads = useMemo(() => {
-    if (activeTab === 'new') {
-      return allLeads.filter((l) => l.status === 'new')
-    }
-    return allLeads
-  }, [allLeads, activeTab])
+  // Extract leads and pagination info from response
+  const leads = paginatedLeads?.results || []
+  const pagination = paginatedLeads ? {
+    count: paginatedLeads.count,
+    totalPages: paginatedLeads.totalPages,
+    currentPage: paginatedLeads.currentPage,
+    pageSize: paginatedLeads.pageSize,
+  } : null
+
+  // Reset to page 1 when filters change
+  const handleTabChange = (tab: TabStatus) => {
+    setActiveTab(tab)
+    setPage(1)
+  }
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query)
+    setPage(1)
+  }
+
+  const handleSourceFilterChange = (source: string | undefined) => {
+    setSourceFilter(source)
+    setPage(1)
+  }
   const logCallMutation = useLogCall()
   const addNoteMutation = useAddNote()
   const dropLeadMutation = useDropLead()
@@ -94,10 +117,10 @@ export function LeadsPage() {
     return allSubSources.filter(ss => sourceIds.has(ss.sourceId))
   }, [allSubSources, sources])
 
-  // Use allLeads so panel stays open even if lead status changes (e.g., dropped while on "New" tab)
+  // Find selected lead from current page
   const selectedLead = useMemo(() =>
-    allLeads.find(l => l.id === selectedLeadId),
-    [allLeads, selectedLeadId]
+    leads.find(l => l.id === selectedLeadId),
+    [leads, selectedLeadId]
   )
 
   // Get the most recent activity time for a lead
@@ -114,24 +137,15 @@ export function LeadsPage() {
     return time > 0 ? new Date(time).toISOString() : null
   }
 
-  // Counts - calculated from all leads so they're stable across tabs
-  const { newCount, allCount } = useMemo(() => {
-    return {
-      newCount: allLeads.filter(l => l.status === 'new').length,
-      allCount: allLeads.length,
-    }
-  }, [allLeads])
-
-  // Sort leads
+  // Sort leads (server already sorts, but we can adjust for "new" tab)
   const sortedLeads = useMemo(() => {
-    return [...leads].sort((a, b) => {
-      if (activeTab === 'new') {
-        // Oldest first (most urgent)
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      }
-      // Newest first
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    })
+    if (activeTab === 'new') {
+      // Oldest first (most urgent)
+      return [...leads].sort((a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
+    }
+    return leads // Server already returns newest first
   }, [leads, activeTab])
 
   // Action handlers - switch to activity tab after actions
@@ -174,8 +188,8 @@ export function LeadsPage() {
         {/* Header */}
         <div className="px-6 py-4">
           <div className="mb-4">
-            <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Leads</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <h1 className="text-xl font-semibold text-slate-900">Leads</h1>
+            <p className="text-sm text-slate-500 mt-1">
               Manage and convert incoming leads
             </p>
           </div>
@@ -190,17 +204,17 @@ export function LeadsPage() {
                   type="text"
                   placeholder="Search..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-4 py-2 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="pl-9 pr-4 py-2 w-64 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               {/* Status Tabs */}
               <div className="flex items-center">
-                <TabButton active={activeTab === 'new'} onClick={() => setActiveTab('new')} count={isLoadingLeads ? undefined : newCount}>
+                <TabButton active={activeTab === 'new'} onClick={() => handleTabChange('new')} count={activeTab === 'new' && pagination ? pagination.count : undefined}>
                   New
                 </TabButton>
-                <TabButton active={activeTab === 'all'} onClick={() => setActiveTab('all')} count={isLoadingLeads ? undefined : allCount}>
+                <TabButton active={activeTab === 'all'} onClick={() => handleTabChange('all')} count={activeTab === 'all' && pagination ? pagination.count : undefined}>
                   All
                 </TabButton>
               </div>
@@ -218,13 +232,13 @@ export function LeadsPage() {
               {sourceFilterOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setSourceFilterOpen(false)} />
-                  <div className="absolute right-0 mt-1 w-64 max-h-64 overflow-y-auto bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-20 py-1">
+                  <div className="absolute right-0 mt-1 w-64 max-h-64 overflow-y-auto bg-white rounded-lg shadow-lg border border-slate-200 z-20 py-1">
                     <button
                       onClick={() => {
-                        setSourceFilter(undefined)
+                        handleSourceFilterChange(undefined)
                         setSourceFilterOpen(false)
                       }}
-                      className="w-full px-3 py-2 text-left text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                      className="w-full px-3 py-2 text-left text-sm text-slate-600 hover:bg-slate-50"
                     >
                       All
                     </button>
@@ -232,13 +246,13 @@ export function LeadsPage() {
                       <button
                         key={subSource.id}
                         onClick={() => {
-                          setSourceFilter(subSource.id)
+                          handleSourceFilterChange(subSource.id)
                           setSourceFilterOpen(false)
                         }}
-                        className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 ${
+                        className={`w-full px-3 py-2 text-left text-sm hover:bg-slate-50 ${
                           sourceFilter === subSource.id
-                            ? 'text-blue-600 dark:text-blue-400'
-                            : 'text-slate-600 dark:text-slate-300'
+                            ? 'text-blue-600'
+                            : 'text-slate-600'
                         }`}
                       >
                         <span className="block truncate">{subSource.name}</span>
@@ -257,19 +271,19 @@ export function LeadsPage() {
         {/* Table */}
         <div className="flex-1 overflow-auto">
           <table className="w-full">
-            <thead className="sticky top-0 bg-slate-100 dark:bg-slate-800 z-10">
-              <tr className="border-b border-slate-200 dark:border-slate-700">
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Lead</th>
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Source</th>
+            <thead className="sticky top-0 bg-slate-100 z-10">
+              <tr className="border-b border-slate-200">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">Lead</th>
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">Source</th>
                 {activeTab === 'all' && (
-                  <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                  <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                 )}
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Intent</th>
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Last Activity</th>
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">Intent</th>
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">Last Activity</th>
                 <th className="w-24 px-2 py-3"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+            <tbody className="divide-y divide-slate-100">
               {sortedLeads.map((lead) => {
                 const status = statusConfig[lead.status]
                 const isSelected = lead.id === selectedLeadId
@@ -285,13 +299,13 @@ export function LeadsPage() {
                       setSelectedLeadId(lead.id)
                     }}
                     className={`cursor-pointer transition-colors group ${
-                      isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                      isSelected ? 'bg-blue-50' : 'hover:bg-slate-50'
                     }`}
                   >
                     {/* Lead Name + SLA */}
                     <td className="px-3 py-3 overflow-hidden align-middle">
                       <div className="space-y-0.5 min-w-0">
-                        <div className="text-sm text-slate-900 dark:text-white truncate">
+                        <div className="text-sm text-slate-900 truncate">
                           {lead.firstName} {lead.lastName}
                         </div>
                         {showSla && (
@@ -304,7 +318,7 @@ export function LeadsPage() {
 
                     {/* Source */}
                     <td className="px-3 py-3 overflow-hidden align-middle">
-                      <span className="text-sm text-slate-700 dark:text-slate-200 truncate">
+                      <span className="text-sm text-slate-700 truncate">
                         {lead.sourceDisplay || '-'}
                       </span>
                     </td>
@@ -320,12 +334,12 @@ export function LeadsPage() {
 
                     {/* Intent */}
                     <td className="px-3 py-3 align-middle">
-                      <span className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2">{lead.intent}</span>
+                      <span className="text-sm text-slate-600 line-clamp-2">{lead.intent}</span>
                     </td>
 
                     {/* Last Activity */}
                     <td className="px-3 py-3 align-middle">
-                      <span className="text-sm text-slate-600 dark:text-slate-300">
+                      <span className="text-sm text-slate-600">
                         {lastActivityTimestamp ? formatRelativeTime(lastActivityTimestamp) : '-'}
                       </span>
                     </td>
@@ -366,10 +380,10 @@ export function LeadsPage() {
                                   placeholder: 'Notes before handover?',
                                 },
                                 {
-                                  label: 'Drop',
+                                  label: 'Not Eligible',
                                   onClick: (notes) => handleDropLead(lead.id, notes),
                                   variant: 'danger',
-                                  placeholder: 'Reason for drop?',
+                                  placeholder: 'Reason for not eligible?',
                                 },
                               ]}
                             />
@@ -388,6 +402,18 @@ export function LeadsPage() {
             <EmptyState message="No leads found" />
           )}
         </div>
+
+        {/* Pagination */}
+        {pagination && pagination.count > 0 && (
+          <Pagination
+            pagination={pagination}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size)
+              setPage(1)
+            }}
+          />
+        )}
       </div>
 
       {/* Lead Side Panel */}
@@ -410,6 +436,7 @@ export function LeadsPage() {
           mode="view"
           isOpen={!!clientOverlayId}
           client={overlayClient}
+          viewOnly
           onClose={() => setClientOverlayId(null)}
           onAddNote={(content) => clientOverlayId && clientAddNoteMutation.mutate({ entityId: clientOverlayId, content })}
           onLogCall={(outcome: ClientCallOutcome, notes) => clientOverlayId && clientLogCallMutation.mutate({ entityId: clientOverlayId, outcome, notes })}

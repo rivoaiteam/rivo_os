@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from django.db.models import Q
 
 from core.models import Channel, Source, SubSource, Campaign, User, BankProduct, EiborRate, SystemSettings
+from api.pagination import StandardPagination
 from api.serializers.settings import (
     ChannelSerializer,
     SourceSerializer,
@@ -102,7 +103,7 @@ class BankProductViewSet(viewsets.ModelViewSet):
     """
 
     permission_classes = [IsAuthenticated]
-    pagination_class = None
+    pagination_class = StandardPagination
     serializer_class = BankProductSerializer
     queryset = BankProduct.objects.all()
 

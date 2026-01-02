@@ -22,9 +22,10 @@ const getNextStageLabel = (currentStage: CaseStage): string | null => {
 import { useCases, useCase, useLogCaseCall, useAddCaseNote, useAdvanceStage, useDeclineCase, useWithdrawCase, useUploadBankForm, useDeleteBankForm, useCreateCase, useUpdateCase, useSetStage } from '@/hooks/useCases'
 import { useClients, useClient, useAddClientNote, useLogClientCall, useUploadDocument, useDeleteDocument } from '@/hooks/useClients'
 import { useBankProducts } from '@/hooks/useSettings'
+import { usePagination } from '@/hooks/usePagination'
 import { CaseSidePanel } from '@/components/cases'
 import { ClientSidePanel } from '@/components/clients'
-import { TabButton, NoteAction, PhoneAction, RowActionsDropdown, EmptyState } from '@/components/ui'
+import { TabButton, NoteAction, PhoneAction, RowActionsDropdown, EmptyState, Pagination } from '@/components/ui'
 
 type ViewType = 'list' | 'kanban'
 type TabType = 'active' | 'all'
@@ -38,6 +39,9 @@ export default function CasesPage() {
   const [initialPanelTab, setInitialPanelTab] = useState<'case' | 'documents' | 'activity'>('case')
   const [showCreatePanel, setShowCreatePanel] = useState(false)
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null)
+
+  // Pagination for list view
+  const { page, pageSize, setPage, setPageSize, resetPage, getPaginationInfo } = usePagination()
 
   // Handle caseId query param - open side panel for specific case
   useEffect(() => {
@@ -53,18 +57,38 @@ export default function CasesPage() {
     }
   }, [searchParams, setSearchParams])
 
-  // Always fetch all cases (for accurate counts), then filter locally
-  const { data: allCases = [], isLoading: isLoadingCases } = useCases({
+  // Build filters with pagination for list view
+  const listFilters = useMemo(() => ({
     search: searchQuery || undefined,
-  })
+    status: activeTab === 'active' ? 'active' as const : undefined,
+    page,
+    pageSize,
+  }), [searchQuery, activeTab, page, pageSize])
 
-  // Filter cases based on active tab
-  const cases = useMemo(() => {
-    if (activeTab === 'active') {
-      return allCases.filter((c) => ACTIVE_STAGES.includes(c.stage))
-    }
-    return allCases
-  }, [allCases, activeTab])
+  // For list view: use paginated data
+  const { data: paginatedCases, isLoading: isLoadingCases } = useCases(listFilters)
+
+  // Extract cases and pagination info for list view
+  const listCases = paginatedCases?.results || []
+  const pagination = getPaginationInfo(paginatedCases)
+
+  // For kanban view: fetch all cases without pagination
+  const kanbanFilters = useMemo(() => ({
+    search: searchQuery || undefined,
+    status: activeTab === 'active' ? 'active' as const : undefined,
+  }), [searchQuery, activeTab])
+
+  const { data: kanbanData } = useCases(kanbanFilters)
+  const kanbanCases = kanbanData?.results || []
+
+  // Use appropriate cases based on view type
+  const cases = viewType === 'list' ? listCases : kanbanCases
+
+  // Reset page when filters/tab change
+  const handleTabChange = (tab: TabType) => {
+    setActiveTab(tab)
+    resetPage()
+  }
 
   // Fetch full detail only when a case is selected
   const { data: selectedCase } = useCase(selectedCaseId)
@@ -73,10 +97,12 @@ export default function CasesPage() {
   const { data: selectedClient } = useClient(selectedClientId)
 
   // Get active clients for the create case dropdown
-  const { data: clients = [] } = useClients({ status: 'active' })
+  const { data: clientsData } = useClients({ status: 'active' })
+  const clients = clientsData?.results ?? []
 
   // Get bank products for bank icons
-  const { data: bankProducts = [] } = useBankProducts()
+  const { data: bankProductsData } = useBankProducts()
+  const bankProducts = bankProductsData?.results ?? []
 
   // Create unique banks list for dropdowns
   const banks = useMemo(() => {
@@ -166,13 +192,8 @@ export default function CasesPage() {
     return grouped
   }, [cases, activeTab])
 
-  // Get counts for tabs - calculated from all cases so counts are stable
-  const { activeCount, allCount } = useMemo(() => {
-    return {
-      activeCount: allCases.filter((c) => ACTIVE_STAGES.includes(c.stage)).length,
-      allCount: allCases.length,
-    }
-  }, [allCases])
+  // Get count for active tab from pagination
+  const tabCount = pagination ? pagination.count : undefined
 
   const handleAddNote = (caseId: number) => (content: string) => {
     addNote.mutate({ entityId: caseId, content })
@@ -255,14 +276,14 @@ export default function CasesPage() {
           setInitialPanelTab('case')
           setSelectedCaseId(caseData.id)
         }}
-        className={`bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3 cursor-grab hover:shadow-md transition-shadow ${isDragging ? 'opacity-50 shadow-lg' : ''}`}
+        className={`bg-white rounded-lg border border-slate-200 p-3 cursor-grab hover:shadow-md transition-shadow ${isDragging ? 'opacity-50 shadow-lg' : ''}`}
       >
         <div className="mb-2">
-          <span className="text-sm font-medium text-slate-900 dark:text-white">
+          <span className="text-sm font-medium text-slate-900">
             {caseData.caseId}
           </span>
         </div>
-        <p className="text-sm text-slate-600 dark:text-slate-300">
+        <p className="text-sm text-slate-600">
           {caseData.client.firstName} {caseData.client.lastName}
         </p>
         <p className="text-xs text-slate-500 mt-1">
@@ -286,13 +307,13 @@ export default function CasesPage() {
 
   // Card content for drag overlay
   const CardContent = ({ caseData }: { caseData: CaseListItem }) => (
-    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3 shadow-xl w-72">
+    <div className="bg-white rounded-lg border border-slate-200 p-3 shadow-xl w-72">
       <div className="mb-2">
-        <span className="text-sm font-medium text-slate-900 dark:text-white">
+        <span className="text-sm font-medium text-slate-900">
           {caseData.caseId}
         </span>
       </div>
-      <p className="text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-sm text-slate-600">
         {caseData.client.firstName} {caseData.client.lastName}
       </p>
       <p className="text-xs text-slate-500 mt-1">
@@ -320,8 +341,8 @@ export default function CasesPage() {
         <div className="px-6 py-4">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-xl font-semibold text-slate-900 dark:text-white">Cases</h1>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              <h1 className="text-xl font-semibold text-slate-900">Cases</h1>
+              <p className="text-sm text-slate-500 mt-1">
                 Monitor mortgage cases through pipeline
               </p>
             </div>
@@ -344,7 +365,7 @@ export default function CasesPage() {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-4 py-2 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="pl-9 pr-4 py-2 w-64 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -352,15 +373,15 @@ export default function CasesPage() {
               <div className="flex items-center">
                 <TabButton
                   active={activeTab === 'active'}
-                  onClick={() => setActiveTab('active')}
-                  count={isLoadingCases ? undefined : activeCount}
+                  onClick={() => handleTabChange('active')}
+                  count={activeTab === 'active' && !isLoadingCases ? tabCount : undefined}
                 >
                   Active
                 </TabButton>
                 <TabButton
                   active={activeTab === 'all'}
-                  onClick={() => setActiveTab('all')}
-                  count={isLoadingCases ? undefined : allCount}
+                  onClick={() => handleTabChange('all')}
+                  count={activeTab === 'all' && !isLoadingCases ? tabCount : undefined}
                 >
                   All
                 </TabButton>
@@ -371,49 +392,48 @@ export default function CasesPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setViewType('list')}
-                className={`p-2 rounded ${viewType === 'list' ? 'bg-slate-200 dark:bg-slate-700' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                className={`p-2 rounded ${viewType === 'list' ? 'bg-slate-200' : 'hover:bg-slate-100'}`}
               >
-                <List className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                <List className="w-4 h-4 text-slate-600" />
               </button>
               <button
                 onClick={() => setViewType('kanban')}
-                className={`p-2 rounded ${viewType === 'kanban' ? 'bg-slate-200 dark:bg-slate-700' : 'hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                className={`p-2 rounded ${viewType === 'kanban' ? 'bg-slate-200' : 'hover:bg-slate-100'}`}
               >
-                <LayoutGrid className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                <LayoutGrid className="w-4 h-4 text-slate-600" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Content */}
-        {viewType === 'list' ? (
-          // List View
+        {/* List View */}
+        {viewType === 'list' && (
           <div className="flex-1 overflow-auto">
           <table className="w-full">
-            <thead className="sticky top-0 bg-slate-100 dark:bg-slate-800 z-10">
-              <tr className="border-b border-slate-200 dark:border-slate-700">
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <thead className="sticky top-0 bg-slate-100 z-10">
+              <tr className="border-b border-slate-200">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Bank
                 </th>
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Case
                 </th>
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Client
                 </th>
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Stage
                 </th>
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Loan Amount
                 </th>
-                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                <th className="text-left px-3 py-3 align-middle text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Last Activity
                 </th>
                 <th className="w-24 px-2 py-3"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+            <tbody className="divide-y divide-slate-100">
               {cases.map((caseData) => (
                 <tr
                   key={caseData.id}
@@ -421,7 +441,7 @@ export default function CasesPage() {
                     setInitialPanelTab('case')
                     setSelectedCaseId(caseData.id)
                   }}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                  className="hover:bg-slate-50 cursor-pointer"
                 >
                   <td className="px-3 py-3">
                     <div className="flex items-center gap-2">
@@ -436,16 +456,16 @@ export default function CasesPage() {
                           {caseData.bankName ? caseData.bankName.slice(0, 2).toUpperCase() : '—'}
                         </span>
                       )}
-                      <span className="text-sm text-slate-600 dark:text-slate-300">
+                      <span className="text-sm text-slate-600">
                         {caseData.bankName || '—'}
                       </span>
                     </div>
                   </td>
                   <td className="px-3 py-3">
-                    <span className="text-sm text-slate-900 dark:text-white">{caseData.caseId}</span>
+                    <span className="text-sm text-slate-900">{caseData.caseId}</span>
                   </td>
                   <td className="px-3 py-3">
-                    <div className="text-sm text-slate-900 dark:text-white">
+                    <div className="text-sm text-slate-900">
                       {caseData.client.firstName} {caseData.client.lastName}
                     </div>
                   </td>
@@ -454,10 +474,10 @@ export default function CasesPage() {
                       {STAGE_LABELS[caseData.stage]}
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-sm text-slate-600 dark:text-slate-300">
+                  <td className="px-3 py-3 text-sm text-slate-600">
                     AED {caseData.loanAmount.toLocaleString()}
                   </td>
-                  <td className="px-3 py-3 text-sm text-slate-500 dark:text-slate-400">
+                  <td className="px-3 py-3 text-sm text-slate-500">
                     {formatDistanceToNow(new Date(caseData.updatedAt || caseData.createdAt), { addSuffix: true })}
                   </td>
                   <td className="px-2 py-3">
@@ -468,7 +488,7 @@ export default function CasesPage() {
                             e.stopPropagation()
                             handleViewClient(caseData.client.id)
                           }}
-                          className="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                          className="p-1.5 text-blue-500 hover:bg-blue-50 rounded transition-colors"
                           title="View Client"
                         >
                           <UserCheck className="w-4 h-4" />
@@ -508,7 +528,18 @@ export default function CasesPage() {
             <EmptyState message="No cases found" />
           )}
           </div>
-        ) : (
+        )}
+
+        {/* Pagination for list view */}
+        {viewType === 'list' && pagination && (
+          <Pagination
+            pagination={pagination}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+          />
+        )}
+
+        {viewType === 'kanban' && (
           // Kanban View with Drag and Drop
           <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <div className="flex-1 overflow-x-auto px-4 pb-4">
@@ -518,10 +549,10 @@ export default function CasesPage() {
                     {/* Column Header */}
                     <div className="px-3 py-2.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                           {STAGE_LABELS[stage as CaseStage]}
                         </span>
-                        <span className="text-xs text-slate-400 dark:text-slate-500">
+                        <span className="text-xs text-slate-400">
                           {stageCases.length}
                         </span>
                       </div>
@@ -602,6 +633,7 @@ export default function CasesPage() {
           onMarkNotProceeding={() => {}}
           onMarkNotEligible={() => {}}
           onCreateCase={() => {}}
+          viewOnly
         />
       )}
     </div>

@@ -56,9 +56,9 @@ const statusChangeLabels: Record<string, string> = {
   converted_from_lead: 'Converted from Lead',
   converted_to_client: 'Converted to Client',
   converted_to_case: 'Converted to Case',
-  dropped: 'Dropped',
+  dropped: 'Marked Not Eligible',
   not_eligible: 'Marked Not Eligible',
-  not_proceeding: 'Marked Not Proceeding',
+  not_proceeding: 'Marked Withdrawn',
 }
 
 type ActivityItem =
@@ -91,23 +91,23 @@ export function ActivityView({ entityType, createdAt, notes = [], callLogs = [],
               <div key={`call-${call.id}`} className="flex gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                   isConnected
-                    ? 'bg-blue-100 dark:bg-blue-900/40'
-                    : 'bg-slate-100 dark:bg-slate-700'
+                    ? 'bg-blue-100'
+                    : 'bg-slate-100'
                 }`}>
                   <Phone className={`w-4 h-4 ${
                     isConnected
-                      ? 'text-blue-600 dark:text-blue-400'
-                      : 'text-slate-500 dark:text-slate-400'
+                      ? 'text-blue-600'
+                      : 'text-slate-500'
                   }`} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">
+                  <p className="text-sm font-medium text-slate-900">
                     Call - {outcomeLabels[call.outcome] || call.outcome}
                   </p>
                   {call.notes && (
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">{call.notes}</p>
+                    <p className="text-sm text-slate-600 mt-0.5">{call.notes}</p>
                   )}
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                  <p className="text-xs text-slate-400 mt-1">
                     {formatRelativeTime(call.timestamp)}
                   </p>
                 </div>
@@ -119,12 +119,12 @@ export function ActivityView({ entityType, createdAt, notes = [], callLogs = [],
             const note = activity.data
             return (
               <div key={`note-${note.id}`} className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
-                  <StickyNote className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <StickyNote className="w-4 h-4 text-amber-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-700 dark:text-slate-300">{note.content}</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                  <p className="text-sm text-slate-700">{note.content}</p>
+                  <p className="text-xs text-slate-400 mt-1">
                     {formatRelativeTime(note.timestamp)}
                   </p>
                 </div>
@@ -139,27 +139,27 @@ export function ActivityView({ entityType, createdAt, notes = [], callLogs = [],
               <div key={`status-${status.id}`} className="flex gap-3">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                   isPositive
-                    ? 'bg-emerald-100 dark:bg-emerald-900/40'
-                    : 'bg-slate-100 dark:bg-slate-700'
+                    ? 'bg-emerald-100'
+                    : 'bg-slate-100'
                 }`}>
                   {isPositive ? (
-                    <UserPlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <UserPlus className="w-4 h-4 text-emerald-600" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                    <XCircle className="w-4 h-4 text-slate-500" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={`text-sm font-medium ${
                     isPositive
-                      ? 'text-emerald-700 dark:text-emerald-300'
-                      : 'text-slate-700 dark:text-slate-300'
+                      ? 'text-emerald-700'
+                      : 'text-slate-700'
                   }`}>
                     {statusChangeLabels[status.type] || status.type}
                   </p>
                   {status.notes && (
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">{status.notes}</p>
+                    <p className="text-sm text-slate-600 mt-0.5">{status.notes}</p>
                   )}
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                  <p className="text-xs text-slate-400 mt-1">
                     {formatRelativeTime(status.timestamp)}
                   </p>
                 </div>
@@ -170,14 +170,14 @@ export function ActivityView({ entityType, createdAt, notes = [], callLogs = [],
           if (activity.type === 'created') {
             return (
               <div key="created" className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
                   <ArrowRight className="w-4 h-4 text-slate-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                  <p className="text-sm text-slate-500">
                     {entityType.charAt(0).toUpperCase() + entityType.slice(1)} created
                   </p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                  <p className="text-xs text-slate-400 mt-1">
                     {formatRelativeTime(activity.data.timestamp)}
                   </p>
                 </div>

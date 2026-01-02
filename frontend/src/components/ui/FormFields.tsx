@@ -10,14 +10,14 @@ import type { ReactNode } from 'react'
 // Common input class patterns
 export const FORM_FIELD_CLASSES = {
   // Base input classes (for non-validated fields with default values)
-  base: 'w-full px-3 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:border-blue-500',
+  base: 'w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:border-blue-500',
   // For validated fields - returns appropriate classes based on error state
   getValidatedClasses: (hasError: boolean) => {
-    const baseClasses = 'w-full px-3 py-2 text-sm bg-white dark:bg-slate-700 rounded-lg text-slate-900 dark:text-white focus:outline-none'
+    const baseClasses = 'w-full px-3 py-2 text-sm bg-white rounded-lg text-slate-900 focus:outline-none'
     if (hasError) {
       return `${baseClasses} border border-red-300 focus:border-red-300`
     }
-    return `${baseClasses} border border-slate-200 dark:border-slate-600 focus:border-blue-500`
+    return `${baseClasses} border border-slate-200 focus:border-blue-500`
   },
 }
 
@@ -29,7 +29,7 @@ interface FieldLabelProps {
 
 export function FieldLabel({ children, required = false }: FieldLabelProps) {
   return (
-    <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
+    <label className="block text-xs text-slate-500 mb-1">
       {children}{required && ' *'}
     </label>
   )
@@ -56,7 +56,7 @@ export function FieldValue({ value, formatter }: FieldValueProps) {
   const displayValue = value != null && value !== ''
     ? (formatter ? formatter(value) : String(value))
     : '—'
-  return <p className="text-sm text-slate-900 dark:text-white">{displayValue}</p>
+  return <p className="text-sm text-slate-900">{displayValue}</p>
 }
 
 // Text input field
@@ -253,7 +253,7 @@ export function RadioGroup({
               disabled={disabled}
               className="text-blue-600 focus:ring-blue-500"
             />
-            <span className="text-sm text-slate-700 dark:text-slate-300">{option.label}</span>
+            <span className="text-sm text-slate-700">{option.label}</span>
           </label>
         ))}
       </div>
@@ -292,7 +292,7 @@ export function FormSection({ title, children, className = '' }: FormSectionProp
   return (
     <div className={className}>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
           {title}
         </h3>
       </div>
@@ -318,13 +318,13 @@ export function FormFooter({
   isSubmitting = false,
 }: FormFooterProps) {
   return (
-    <div className="flex-shrink-0 px-6 py-4 bg-white dark:bg-slate-800">
+    <div className="flex-shrink-0 px-6 py-4 bg-white">
       <div className="flex gap-3">
         <button
           type="button"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors disabled:opacity-50"
+          className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50"
         >
           {cancelLabel}
         </button>
@@ -379,7 +379,7 @@ export function EditableField({
     return (
       <div>
         <FieldLabel required={required}>{label}</FieldLabel>
-        <p className="text-sm text-slate-900 dark:text-white">{displayValue}</p>
+        <p className="text-sm text-slate-900">{displayValue}</p>
       </div>
     )
   }

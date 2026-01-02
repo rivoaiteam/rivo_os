@@ -23,7 +23,7 @@ class ClientService:
     @transaction.atomic
     def mark_not_proceeding(client_id: int, notes: str = '') -> Client:
         """
-        Mark client as not proceeding (terminal status).
+        Mark client as withdrawn (terminal status).
 
         Args:
             client_id: The client ID to update

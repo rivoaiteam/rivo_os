@@ -22,7 +22,7 @@ class LeadService:
     @transaction.atomic
     def drop_lead(lead_id: int, notes: str = '') -> Lead:
         """
-        Drop a lead (terminal status).
+        Mark lead as not eligible (terminal status).
 
         Args:
             lead_id: The lead ID to drop

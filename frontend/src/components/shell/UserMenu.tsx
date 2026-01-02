@@ -23,7 +23,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
     <div ref={menuRef} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100 transition-all"
       >
         {/* Avatar */}
         {user.avatarUrl ? (
@@ -33,11 +33,11 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
             className="w-7 h-7 rounded-full object-cover"
           />
         ) : (
-          <User className="w-4 h-4 text-slate-500 dark:text-slate-400" strokeWidth={2} />
+          <User className="w-4 h-4 text-slate-500" strokeWidth={2} />
         )}
 
         {/* Name */}
-        <span className="text-sm text-slate-600 dark:text-slate-300 hidden sm:block">
+        <span className="text-sm text-slate-600 hidden sm:block">
           {user.name}
         </span>
 
@@ -50,13 +50,13 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
 
       {/* Dropdown menu */}
       {open && (
-        <div className="absolute right-0 mt-1 w-40 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-100 dark:border-slate-700 py-1 z-50">
+        <div className="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-slate-100 py-1 z-50">
           <button
             onClick={() => {
               setOpen(false)
               onLogout?.()
             }}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-all"
           >
             <LogOut className="w-4 h-4" strokeWidth={2} />
             <span>Log out</span>

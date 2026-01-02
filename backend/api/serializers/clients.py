@@ -287,7 +287,7 @@ class ClientUpdateSerializer(serializers.ModelSerializer):
 
 
 class MarkNotProceedingSerializer(serializers.Serializer):
-    """Serializer for marking client as not proceeding"""
+    """Serializer for marking client as withdrawn"""
 
     notes = serializers.CharField(required=False, allow_blank=True)
 

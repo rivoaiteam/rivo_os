@@ -31,6 +31,7 @@ export interface StatusAction {
 interface BaseEntityActionsProps {
   entityType: EntityType
   phone: string
+  viewOnly?: boolean  // Hide all actions when viewing from another tab
   onAddNote: (content: string) => void
   onLogCall: (outcome: CallOutcome, notes?: string) => void
   onViewModeChange?: (mode: 'activity') => void
@@ -50,7 +51,7 @@ interface LeadActionsProps extends BaseEntityActionsProps {
 // Client-specific props
 interface ClientActionsProps extends BaseEntityActionsProps {
   entityType: 'client'
-  isTerminal: boolean  // status in ['not_eligible', 'not_proceeding']
+  isTerminal: boolean  // status in ['notEligible', 'notProceeding'] (withdrawn/not eligible)
   isActioned: boolean  // cases.length > 0
   cases: ClientCase[]
   onGoToCase?: (caseId: number) => void
@@ -64,6 +65,7 @@ interface CaseActionsProps extends BaseEntityActionsProps {
   entityType: 'case'
   isTerminal: boolean  // stage in ['disbursed', 'declined', 'withdrawn']
   clientId: number
+  nextStageLabel?: string  // Label for the next stage (e.g., "Submitted", "Under Review")
   onGoToClient?: (clientId: number) => void
   onAdvanceStage: (notes?: string) => void
   onDecline: (reason?: string) => void
@@ -81,7 +83,10 @@ export type EntityActionsProps = LeadActionsProps | ClientActionsProps | CaseAct
  * - Terminal: Link only
  */
 export function EntityActions(props: EntityActionsProps) {
-  const { entityType, phone, onAddNote, onLogCall, onViewModeChange } = props
+  const { entityType, phone, viewOnly, onAddNote, onLogCall, onViewModeChange } = props
+
+  // View only mode: no actions (opened from another tab)
+  if (viewOnly) return null
 
   const handleAddNote = (content: string) => {
     onAddNote(content)
@@ -130,13 +135,13 @@ export function EntityActions(props: EntityActionsProps) {
               placeholder: 'Notes before handover?',
             },
             {
-              label: 'Drop',
+               label: 'Not Eligible',
               onClick: (notes) => {
                 onDrop(notes)
                 onViewModeChange?.('activity')
               },
               variant: 'danger',
-              placeholder: 'Reason for drop?',
+              placeholder: 'Reason for not eligible?',
             },
           ]}
         />
@@ -175,19 +180,19 @@ export function EntityActions(props: EntityActionsProps) {
         <RowActionsDropdown
           actions={[
             {
-              label: 'Create Case',
+              label: 'Convert',
               onClick: () => onCreateCase(),
               variant: 'success',
               placeholder: 'Notes before handover?',
             },
             {
-              label: 'Not Proceeding',
+              label: 'Withdrawn',
               onClick: (notes) => {
                 onMarkNotProceeding(notes)
                 onViewModeChange?.('activity')
               },
               variant: 'warning',
-              placeholder: 'Reason for not proceeding?',
+              placeholder: 'Reason for withdrawal?',
             },
             {
               label: 'Not Eligible',
@@ -206,7 +211,7 @@ export function EntityActions(props: EntityActionsProps) {
 
   // Case actions
   if (entityType === 'case') {
-    const { isTerminal, clientId, onGoToClient, onAdvanceStage, onDecline, onWithdraw } = props as CaseActionsProps
+    const { isTerminal, clientId, nextStageLabel, onGoToClient, onAdvanceStage, onDecline, onWithdraw } = props as CaseActionsProps
 
     // Terminal: show client link only
     if (isTerminal) {
@@ -222,13 +227,23 @@ export function EntityActions(props: EntityActionsProps) {
         <RowActionsDropdown
           actions={[
             {
-              label: 'Advance',
+              label: nextStageLabel || 'Advance',
               onClick: (notes) => {
                 onAdvanceStage(notes)
                 onViewModeChange?.('activity')
               },
               variant: 'success',
               placeholder: 'Notes for stage change?',
+            },
+            {
+              label: 'Withdrawn',
+              onClick: (reason) => {
+                onWithdraw(reason)
+                onViewModeChange?.('activity')
+              },
+              variant: 'warning',
+              placeholder: 'Reason for withdrawal?',
+              required: true,
             },
             {
               label: 'Decline',
@@ -238,16 +253,6 @@ export function EntityActions(props: EntityActionsProps) {
               },
               variant: 'danger',
               placeholder: 'Reason for decline?',
-              required: true,
-            },
-            {
-              label: 'Withdraw',
-              onClick: (reason) => {
-                onWithdraw(reason)
-                onViewModeChange?.('activity')
-              },
-              variant: 'warning',
-              placeholder: 'Reason for withdrawal?',
               required: true,
             },
           ]}

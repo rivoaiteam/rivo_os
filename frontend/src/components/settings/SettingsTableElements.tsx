@@ -46,13 +46,13 @@ export function EditActionButtons({ onSave, onCancel, disabled }: EditActionButt
       <button
         onClick={onSave}
         disabled={disabled}
-        className="p-1.5 text-emerald-600 hover:text-emerald-700 disabled:text-slate-300 dark:disabled:text-slate-600 transition-colors"
+        className="p-1.5 text-emerald-600 hover:text-emerald-700 disabled:text-slate-300 transition-colors"
       >
         <Check className="w-4 h-4" />
       </button>
       <button
         onClick={onCancel}
-        className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+        className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors"
       >
         <X className="w-4 h-4" />
       </button>
@@ -70,7 +70,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ message }: EmptyStateProps) {
   return (
-    <div className="px-4 py-8 text-center text-sm text-slate-400 dark:text-slate-500">
+    <div className="px-4 py-8 text-center text-sm text-slate-400">
       {message}
     </div>
   )

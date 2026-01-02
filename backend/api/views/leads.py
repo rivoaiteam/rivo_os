@@ -13,6 +13,7 @@ from collections import defaultdict
 
 from core.models import Lead, CallLog, Note
 from api.views.mixins import ActivityTrackingMixin
+from api.pagination import StandardPagination
 from api.services import LeadService
 from api.serializers.leads import (
     LeadListSerializer,
@@ -44,7 +45,7 @@ class LeadViewSet(ActivityTrackingMixin, viewsets.ModelViewSet):
 
     activity_entity_type = 'lead'
     permission_classes = [IsAuthenticated]
-    pagination_class = None  # Disable pagination - return all leads as array
+    pagination_class = StandardPagination
     queryset = Lead.objects.all()
 
     def get_serializer_class(self):
@@ -116,11 +117,28 @@ class LeadViewSet(ActivityTrackingMixin, viewsets.ModelViewSet):
         }
 
     def list(self, request, *args, **kwargs):
-        """Override list to prefetch activities efficiently"""
+        """Override list to prefetch activities efficiently with pagination"""
         queryset = self.filter_queryset(self.get_queryset())
-        lead_ids = list(queryset.values_list('id', flat=True))
 
-        # Prefetch activities in 2 queries instead of N*2
+        # Paginate the queryset
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            lead_ids = [lead.id for lead in page]
+            activities = self._prefetch_activities(lead_ids)
+
+            serializer = self.get_serializer(
+                page,
+                many=True,
+                context={
+                    **self.get_serializer_context(),
+                    'prefetched_call_logs': activities['call_logs'],
+                    'prefetched_notes': activities['notes'],
+                }
+            )
+            return self.get_paginated_response(serializer.data)
+
+        # Fallback for no pagination
+        lead_ids = list(queryset.values_list('id', flat=True))
         activities = self._prefetch_activities(lead_ids)
 
         serializer = self.get_serializer(
@@ -153,7 +171,7 @@ class LeadViewSet(ActivityTrackingMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def drop(self, request, pk=None):
-        """Drop a lead - delegates to LeadService"""
+        """Mark lead as not eligible - delegates to LeadService"""
         serializer = DropLeadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 

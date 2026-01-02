@@ -4,16 +4,19 @@
 
 import api from './client'
 import type { Lead, LeadFilters, CallOutcome } from '@/types/leads'
+import type { PaginatedResponse, PaginationParams } from '@/types/common'
 
 export const leadsApi = {
-  // Get all leads with optional filters
-  async list(filters?: LeadFilters): Promise<Lead[]> {
+  // Get paginated leads with optional filters
+  async list(filters?: LeadFilters & PaginationParams): Promise<PaginatedResponse<Lead>> {
     const params = new URLSearchParams()
     if (filters?.status) params.append('status', filters.status)
     if (filters?.source) params.append('source', filters.source)
     if (filters?.search) params.append('search', filters.search)
+    if (filters?.page) params.append('page', filters.page.toString())
+    if (filters?.pageSize) params.append('page_size', filters.pageSize.toString())
 
-    const response = await api.get<Lead[]>(`/leads/?${params.toString()}`)
+    const response = await api.get<PaginatedResponse<Lead>>(`/leads/?${params.toString()}`)
     return response.data
   },
 
@@ -53,7 +56,7 @@ export const leadsApi = {
     await api.post(`/leads/${id}/add_note/`, { content })
   },
 
-  // Drop lead
+  // Mark lead as not eligible
   async drop(id: number, notes?: string): Promise<Lead> {
     const response = await api.post<Lead>(`/leads/${id}/drop/`, { notes })
     return response.data

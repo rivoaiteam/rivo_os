@@ -43,6 +43,7 @@ interface ViewModeProps {
   onGoToCase?: (caseId: number) => void
   cases?: CaseReference[]
   initialTab?: 'profile' | 'documents' | 'activity'
+  viewOnly?: boolean
 }
 
 type ClientSidePanelProps = CreateModeProps | ViewModeProps
@@ -74,6 +75,7 @@ export function ClientSidePanel(props: ClientSidePanelProps) {
       onGoToCase={props.onGoToCase}
       cases={props.cases}
       initialTab={props.initialTab}
+      viewOnly={props.viewOnly}
     />
   )
 }

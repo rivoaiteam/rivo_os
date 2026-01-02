@@ -16,6 +16,7 @@ from collections import defaultdict
 from core.models import Case, BankForm, BankProduct, CaseStageChange, CallLog, Note
 from core.storage import storage_service
 from api.views.mixins import ActivityTrackingMixin
+from api.pagination import StandardPagination
 from api.services import CaseService
 from api.serializers.cases import (
     CaseListSerializer,
@@ -51,7 +52,7 @@ class CaseViewSet(ActivityTrackingMixin, viewsets.ModelViewSet):
 
     activity_entity_type = 'case'
     permission_classes = [IsAuthenticated]
-    pagination_class = None  # Disable pagination - return all cases as array
+    pagination_class = StandardPagination
     queryset = Case.objects.all()
 
     def get_serializer_class(self):
@@ -125,10 +126,28 @@ class CaseViewSet(ActivityTrackingMixin, viewsets.ModelViewSet):
         }
 
     def list(self, request, *args, **kwargs):
-        """Override list to prefetch activities efficiently"""
+        """Override list to prefetch activities efficiently with pagination"""
         queryset = self.filter_queryset(self.get_queryset())
-        case_ids = list(queryset.values_list('id', flat=True))
 
+        # Paginate the queryset
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            case_ids = [case.id for case in page]
+            activities = self._prefetch_activities(case_ids)
+
+            serializer = self.get_serializer(
+                page,
+                many=True,
+                context={
+                    **self.get_serializer_context(),
+                    'prefetched_call_logs': activities['call_logs'],
+                    'prefetched_notes': activities['notes'],
+                }
+            )
+            return self.get_paginated_response(serializer.data)
+
+        # Fallback for no pagination
+        case_ids = list(queryset.values_list('id', flat=True))
         activities = self._prefetch_activities(case_ids)
 
         serializer = self.get_serializer(

@@ -4,13 +4,12 @@
  */
 
 import { useState } from 'react'
-import { Upload, ExternalLink, CheckCircle, XCircle, Phone, FileText, Pencil, X } from 'lucide-react'
+import { ExternalLink, CheckCircle, XCircle, Phone, FileText, Pencil, X } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import type { Client, CallOutcome, DocumentType, ResidencyStatus, EmploymentStatus } from '@/types/clients'
 import { SidePanel, SidePanelTabs, SidePanelContent, SidePanelStatus } from '@/components/ui/SidePanel'
 import { EntityActions } from '@/components/shared'
 import { DocumentList, type DocumentItem } from '@/components/ui/DocumentList'
-import { detectDocumentType } from '@/utils/documentDetection'
 import { WhatsAppChat } from '@/components/whatsapp/WhatsAppChat'
 
 const NATIONALITIES = [
@@ -64,9 +63,10 @@ interface ClientViewPanelProps {
   onGoToCase?: (caseId: number) => void
   cases?: CaseReference[]
   initialTab?: 'profile' | 'documents' | 'activity'
+  viewOnly?: boolean  // Hide all actions when viewing from another tab
 }
 
-const INPUT_CLASSES = 'w-full px-3 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500'
+const INPUT_CLASSES = 'w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500'
 
 const TABS = [
   { id: 'profile', label: 'Profile' },
@@ -90,6 +90,7 @@ export function ClientViewPanel({
   onGoToCase,
   cases = [],
   initialTab = 'profile',
+  viewOnly = false,
 }: ClientViewPanelProps) {
   const [viewMode, setViewMode] = useState<ViewMode>(initialTab)
   const [isEditing, setIsEditing] = useState(false)
@@ -102,14 +103,18 @@ export function ClientViewPanel({
   const fullName = `${client.firstName} ${client.lastName}`
 
   // Eligibility calculations (derived)
-  const salary = isEditing ? (editData.monthlySalary ?? client.monthlySalary) : client.monthlySalary
-  const liabilities = isEditing ? (editData.monthlyLiabilities ?? client.monthlyLiabilities) : client.monthlyLiabilities
-  const loanAmount = isEditing ? (editData.loanAmount ?? client.loanAmount) : client.loanAmount
-  const propertyValue = isEditing ? (editData.estimatedPropertyValue ?? client.estimatedPropertyValue) : client.estimatedPropertyValue
+  const salary = isEditing ? (editData.monthlySalary ?? client.monthlySalary ?? 0) : (client.monthlySalary ?? 0)
+  const liabilities = isEditing ? (editData.monthlyLiabilities ?? client.monthlyLiabilities ?? 0) : (client.monthlyLiabilities ?? 0)
+  const loanAmount = isEditing ? (editData.loanAmount ?? client.loanAmount ?? 0) : (client.loanAmount ?? 0)
+  const propertyValue = isEditing ? (editData.estimatedPropertyValue ?? client.estimatedPropertyValue ?? 0) : (client.estimatedPropertyValue ?? 0)
 
-  const dbr = salary && salary > 0 && liabilities ? (liabilities / salary * 100) : null
-  const ltv = loanAmount && propertyValue && propertyValue > 0 ? (loanAmount / propertyValue * 100) : null
-  const maxLoan = salary && salary > 0 ? (salary * 0.5 - (liabilities || 0)) * 240 : null
+  const residency = isEditing ? (editData.residencyStatus ?? client.residencyStatus) : client.residencyStatus
+
+  const dbr = salary > 0 && liabilities ? (liabilities / salary * 100) : null
+  const ltv = loanAmount && propertyValue > 0 ? (loanAmount / propertyValue * 100) : null
+  const maxLoan = salary > 0 ? (salary * 0.5 - liabilities) * 240 : null
+  // LTV threshold: 85% for UAE Nationals (uaeNational), 80% for others
+  const ltvLimit = residency === 'uaeNational' ? 85 : 80
 
   // Edit handlers
   const startEditing = () => {
@@ -143,27 +148,8 @@ export function ClientViewPanel({
     }
   }
 
-  const updateEditField = <K extends keyof Client>(field: K, value: Client[K]) => {
+  const updateEditField = <K extends keyof Client>(field: K, value: Client[K] | undefined) => {
     setEditData(prev => ({ ...prev, [field]: value }))
-  }
-
-  // File upload handler
-  const uploadFiles = (files: FileList) => {
-    const assignedTypes = new Set<DocumentType>()
-
-    Array.from(files).forEach(file => {
-      let detectedType = detectDocumentType(file.name)
-
-      if (detectedType !== 'other' && assignedTypes.has(detectedType)) {
-        detectedType = 'other'
-      }
-
-      if (detectedType !== 'other') {
-        assignedTypes.add(detectedType)
-      }
-
-      onUploadDocument(detectedType, file)
-    })
   }
 
   // Header actions
@@ -171,6 +157,7 @@ export function ClientViewPanel({
     <EntityActions
       entityType="client"
       phone={client.phone}
+      viewOnly={viewOnly}
       isTerminal={isTerminal}
       isActioned={isActioned}
       cases={cases}
@@ -201,7 +188,7 @@ export function ClientViewPanel({
           <DocumentsTab
             client={client}
             isTerminal={isTerminal}
-            onUploadFiles={uploadFiles}
+            onUploadDocument={onUploadDocument}
             onPreviewDoc={setPreviewDoc}
             onDeleteDocument={onDeleteDocument}
           />
@@ -221,17 +208,18 @@ export function ClientViewPanel({
               dbr={dbr}
               ltv={ltv}
               maxLoan={maxLoan}
+              ltvLimit={ltvLimit}
               onStartEdit={startEditing}
               onUpdateField={updateEditField}
             />
 
             {isEditing && (
-              <div className="flex-shrink-0 px-6 py-4 bg-white dark:bg-slate-800">
+              <div className="flex-shrink-0 px-6 py-4 bg-white">
                 <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={cancelEditing}
-                    className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
+                    className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
@@ -248,7 +236,7 @@ export function ClientViewPanel({
 
             {isTerminal && !isEditing && (
               <SidePanelStatus status={client.status === 'notEligible' ? 'danger' : 'neutral'}>
-                {client.status === 'notEligible' ? 'Not Eligible' : 'Not Proceeding'}
+                {client.status === 'notEligible' ? 'Not Eligible' : 'Withdrawn'}
               </SidePanelStatus>
             )}
           </>
@@ -277,13 +265,35 @@ interface ProfileTabProps {
   dbr: number | null
   ltv: number | null
   maxLoan: number | null
+  ltvLimit: number
   onStartEdit: () => void
-  onUpdateField: <K extends keyof Client>(field: K, value: Client[K]) => void
+  onUpdateField: <K extends keyof Client>(field: K, value: Client[K] | undefined) => void
 }
 
-function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan, onStartEdit, onUpdateField }: ProfileTabProps) {
+function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan, ltvLimit, onStartEdit, onUpdateField }: ProfileTabProps) {
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+
   const getValue = <K extends keyof Client>(field: K): Client[K] => {
     return isEditing && field in editData ? editData[field] as Client[K] : client[field]
+  }
+
+  const handleAedChange = (field: 'monthlySalary' | 'monthlyLiabilities' | 'loanAmount' | 'estimatedPropertyValue', value: string) => {
+    const num = value ? Number(value) : undefined
+    if (num !== undefined && num < 0) {
+      setFieldErrors(prev => ({ ...prev, [field]: 'Must be positive' }))
+    } else {
+      setFieldErrors(prev => ({ ...prev, [field]: '' }))
+    }
+    onUpdateField(field, num)
+  }
+
+  const handleDobChange = (value: string) => {
+    if (value && new Date(value) > new Date()) {
+      setFieldErrors(prev => ({ ...prev, dateOfBirth: 'DOB cannot be in future' }))
+    } else {
+      setFieldErrors(prev => ({ ...prev, dateOfBirth: '' }))
+    }
+    onUpdateField('dateOfBirth', value)
   }
 
   return (
@@ -292,7 +302,7 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
       <div className="relative">
         <div className="grid grid-cols-2 gap-x-3">
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">First Name</label>
+            <label className="block text-xs text-slate-500 mb-1">First Name</label>
             {isEditing ? (
               <input
                 type="text"
@@ -301,11 +311,11 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
                 className={INPUT_CLASSES}
               />
             ) : (
-              <p className="text-sm text-slate-900 dark:text-white">{client.firstName}</p>
+              <p className="text-sm text-slate-900">{client.firstName}</p>
             )}
           </div>
           <div>
-            <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Last Name</label>
+            <label className="block text-xs text-slate-500 mb-1">Last Name</label>
             {isEditing ? (
               <input
                 type="text"
@@ -314,14 +324,14 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
                 className={INPUT_CLASSES}
               />
             ) : (
-              <p className="text-sm text-slate-900 dark:text-white">{client.lastName}</p>
+              <p className="text-sm text-slate-900">{client.lastName}</p>
             )}
           </div>
         </div>
         {!isEditing && !isTerminal && (
           <button
             onClick={onStartEdit}
-            className="absolute top-0 right-0 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="absolute top-0 right-0 p-1 rounded hover:bg-slate-100 transition-colors"
             title="Edit Profile"
           >
             <Pencil className="w-3.5 h-3.5 text-slate-400" />
@@ -332,7 +342,7 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
       {/* Email & Phone */}
       <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Email</label>
+          <label className="block text-xs text-slate-500 mb-1">Email</label>
           {isEditing ? (
             <input
               type="email"
@@ -341,11 +351,11 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
               className={INPUT_CLASSES}
             />
           ) : (
-            <p className="text-sm text-slate-900 dark:text-white">{client.email || '—'}</p>
+            <p className="text-sm text-slate-900">{client.email || '—'}</p>
           )}
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Phone</label>
+          <label className="block text-xs text-slate-500 mb-1">Phone</label>
           {isEditing ? (
             <input
               type="tel"
@@ -354,7 +364,7 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
               className={INPUT_CLASSES}
             />
           ) : (
-            <p className="text-sm text-slate-900 dark:text-white">{client.phone}</p>
+            <p className="text-sm text-slate-900">{client.phone}</p>
           )}
         </div>
       </div>
@@ -362,15 +372,15 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
       {/* Source */}
       <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Source</label>
-          <p className="text-sm text-slate-900 dark:text-white">{client.sourceDisplay || '—'}</p>
+          <label className="block text-xs text-slate-500 mb-1">Source</label>
+          <p className="text-sm text-slate-900">{client.sourceDisplay || '—'}</p>
         </div>
       </div>
 
       {/* Residency & Employment */}
       <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Residency Status</label>
+          <label className="block text-xs text-slate-500 mb-1">Residency Status</label>
           {isEditing ? (
             <select
               value={getValue('residencyStatus')}
@@ -382,14 +392,14 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
               <option value="nonResident">Non-Resident</option>
             </select>
           ) : (
-            <p className="text-sm text-slate-900 dark:text-white">
+            <p className="text-sm text-slate-900">
               {client.residencyStatus === 'uaeNational' ? 'UAE National' :
                client.residencyStatus === 'uaeResident' ? 'UAE Resident' : 'Non-Resident'}
             </p>
           )}
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Employment Status</label>
+          <label className="block text-xs text-slate-500 mb-1">Employment Status</label>
           {isEditing ? (
             <select
               value={getValue('employmentStatus')}
@@ -400,7 +410,7 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
               <option value="selfEmployed">Self-Employed</option>
             </select>
           ) : (
-            <p className="text-sm text-slate-900 dark:text-white">
+            <p className="text-sm text-slate-900">
               {client.employmentStatus === 'selfEmployed' ? 'Self-Employed' : 'Salaried'}
             </p>
           )}
@@ -410,20 +420,23 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
       {/* DOB & Nationality */}
       <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Date of Birth</label>
+          <label className="block text-xs text-slate-500 mb-1">Date of Birth</label>
           {isEditing ? (
-            <input
-              type="date"
-              value={getValue('dateOfBirth') || ''}
-              onChange={(e) => onUpdateField('dateOfBirth', e.target.value)}
-              className={INPUT_CLASSES}
-            />
+            <>
+              <input
+                type="date"
+                value={getValue('dateOfBirth') || ''}
+                onChange={(e) => handleDobChange(e.target.value)}
+                className={INPUT_CLASSES}
+              />
+              {fieldErrors.dateOfBirth && <p className="mt-1 text-xs text-red-500">{fieldErrors.dateOfBirth}</p>}
+            </>
           ) : (
-            <p className="text-sm text-slate-900 dark:text-white">{client.dateOfBirth || '—'}</p>
+            <p className="text-sm text-slate-900">{client.dateOfBirth || '—'}</p>
           )}
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Nationality</label>
+          <label className="block text-xs text-slate-500 mb-1">Nationality</label>
           {isEditing ? (
             <select
               value={getValue('nationality') || ''}
@@ -436,7 +449,7 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
               ))}
             </select>
           ) : (
-            <p className="text-sm text-slate-900 dark:text-white">{client.nationality || '—'}</p>
+            <p className="text-sm text-slate-900">{client.nationality || '—'}</p>
           )}
         </div>
       </div>
@@ -444,61 +457,73 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
       {/* Financial Fields */}
       <div className="grid grid-cols-2 gap-x-3 gap-y-4">
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Monthly Salary (AED)</label>
+          <label className="block text-xs text-slate-500 mb-1">Monthly Salary (AED)</label>
           {isEditing ? (
-            <input
-              type="number"
-              value={getValue('monthlySalary') || ''}
-              onChange={(e) => onUpdateField('monthlySalary', Number(e.target.value))}
-              className={INPUT_CLASSES}
-            />
+            <>
+              <input
+                type="number"
+                value={getValue('monthlySalary') ?? ''}
+                onChange={(e) => handleAedChange('monthlySalary', e.target.value)}
+                className={INPUT_CLASSES}
+              />
+              {fieldErrors.monthlySalary && <p className="mt-1 text-xs text-red-500">{fieldErrors.monthlySalary}</p>}
+            </>
           ) : (
-            <p className="text-sm text-slate-900 dark:text-white">
+            <p className="text-sm text-slate-900">
               {client.monthlySalary ? `AED ${client.monthlySalary.toLocaleString()}` : '—'}
             </p>
           )}
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Monthly Liabilities (AED)</label>
+          <label className="block text-xs text-slate-500 mb-1">Monthly Liabilities (AED)</label>
           {isEditing ? (
-            <input
-              type="number"
-              value={getValue('monthlyLiabilities') || ''}
-              onChange={(e) => onUpdateField('monthlyLiabilities', Number(e.target.value))}
-              className={INPUT_CLASSES}
-            />
+            <>
+              <input
+                type="number"
+                value={getValue('monthlyLiabilities') ?? ''}
+                onChange={(e) => handleAedChange('monthlyLiabilities', e.target.value)}
+                className={INPUT_CLASSES}
+              />
+              {fieldErrors.monthlyLiabilities && <p className="mt-1 text-xs text-red-500">{fieldErrors.monthlyLiabilities}</p>}
+            </>
           ) : (
-            <p className="text-sm text-slate-900 dark:text-white">
+            <p className="text-sm text-slate-900">
               {client.monthlyLiabilities ? `AED ${client.monthlyLiabilities.toLocaleString()}` : '—'}
             </p>
           )}
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Loan Amount (AED)</label>
+          <label className="block text-xs text-slate-500 mb-1">Loan Amount (AED)</label>
           {isEditing ? (
-            <input
-              type="number"
-              value={getValue('loanAmount') || ''}
-              onChange={(e) => onUpdateField('loanAmount', Number(e.target.value))}
-              className={INPUT_CLASSES}
-            />
+            <>
+              <input
+                type="number"
+                value={getValue('loanAmount') ?? ''}
+                onChange={(e) => handleAedChange('loanAmount', e.target.value)}
+                className={INPUT_CLASSES}
+              />
+              {fieldErrors.loanAmount && <p className="mt-1 text-xs text-red-500">{fieldErrors.loanAmount}</p>}
+            </>
           ) : (
-            <p className="text-sm text-slate-900 dark:text-white">
+            <p className="text-sm text-slate-900">
               {client.loanAmount ? `AED ${client.loanAmount.toLocaleString()}` : '—'}
             </p>
           )}
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Property Value (AED)</label>
+          <label className="block text-xs text-slate-500 mb-1">Property Value (AED)</label>
           {isEditing ? (
-            <input
-              type="number"
-              value={getValue('estimatedPropertyValue') || ''}
-              onChange={(e) => onUpdateField('estimatedPropertyValue', Number(e.target.value))}
-              className={INPUT_CLASSES}
-            />
+            <>
+              <input
+                type="number"
+                value={getValue('estimatedPropertyValue') ?? ''}
+                onChange={(e) => handleAedChange('estimatedPropertyValue', e.target.value)}
+                className={INPUT_CLASSES}
+              />
+              {fieldErrors.estimatedPropertyValue && <p className="mt-1 text-xs text-red-500">{fieldErrors.estimatedPropertyValue}</p>}
+            </>
           ) : (
-            <p className="text-sm text-slate-900 dark:text-white">
+            <p className="text-sm text-slate-900">
               {client.estimatedPropertyValue ? `AED ${client.estimatedPropertyValue.toLocaleString()}` : '—'}
             </p>
           )}
@@ -507,24 +532,25 @@ function ProfileTab({ client, isEditing, editData, isTerminal, dbr, ltv, maxLoan
 
       {/* Eligibility Indicators */}
       {(client.monthlySalary || (isEditing && editData.monthlySalary)) && (
-        <EligibilityIndicators dbr={dbr} ltv={ltv} maxLoan={maxLoan} />
+        <EligibilityIndicators dbr={dbr} ltv={ltv} maxLoan={maxLoan} ltvLimit={ltvLimit} />
       )}
     </SidePanelContent>
   )
 }
 
-function EligibilityIndicators({ dbr, ltv, maxLoan }: { dbr: number | null; ltv: number | null; maxLoan: number | null }) {
+function EligibilityIndicators({ dbr, ltv, maxLoan, ltvLimit }: { dbr: number | null; ltv: number | null; maxLoan: number | null; ltvLimit: number }) {
   return (
-    <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+    <div className="mt-4 p-3 bg-slate-50 rounded-lg">
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">DBR</div>
+          <div className="text-xs text-slate-500 mb-1">DBR</div>
           {dbr != null ? (
             <>
-              <div className={`text-sm font-semibold ${dbr > 50 ? 'text-amber-600' : 'text-green-600'}`}>
+              <div className={`text-sm font-semibold ${dbr > 50 ?'text-amber-600' : 'text-green-600'}`}>
                 {dbr.toFixed(1)}%
               </div>
-              <div className="mt-1 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
+
+              <div className="mt-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
                 <div className={`h-full rounded-full ${dbr > 50 ? 'bg-amber-500' : 'bg-green-500'}`} style={{ width: `${Math.min(dbr, 100)}%` }} />
               </div>
             </>
@@ -533,14 +559,14 @@ function EligibilityIndicators({ dbr, ltv, maxLoan }: { dbr: number | null; ltv:
           )}
         </div>
         <div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">LTV</div>
+          <div className="text-xs text-slate-500 mb-1">LTV</div>
           {ltv != null ? (
             <>
-              <div className={`text-sm font-semibold ${ltv > 80 ? 'text-amber-600' : 'text-green-600'}`}>
+              <div className={`text-sm font-semibold ${ltv > ltvLimit ? 'text-amber-600' : 'text-green-600'}`}>
                 {ltv.toFixed(1)}%
               </div>
-              <div className="mt-1 h-1.5 bg-slate-200 dark:bg-slate-600 rounded-full overflow-hidden">
-                <div className={`h-full rounded-full ${ltv > 80 ? 'bg-amber-500' : 'bg-green-500'}`} style={{ width: `${Math.min(ltv, 100)}%` }} />
+              <div className="mt-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full ${ltv > ltvLimit ? 'bg-amber-500' : 'bg-green-500'}`} style={{ width: `${Math.min(ltv, 100)}%` }} />
               </div>
             </>
           ) : (
@@ -548,8 +574,8 @@ function EligibilityIndicators({ dbr, ltv, maxLoan }: { dbr: number | null; ltv:
           )}
         </div>
         <div>
-          <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">Max Loan</div>
-          <div className="text-sm font-semibold text-slate-900 dark:text-white">
+          <div className="text-xs text-slate-500 mb-1">Max Loan</div>
+          <div className="text-sm font-semibold text-slate-900">
             {maxLoan && maxLoan > 0 ? `AED ${Math.round(maxLoan).toLocaleString()}` : '—'}
           </div>
         </div>
@@ -561,46 +587,14 @@ function EligibilityIndicators({ dbr, ltv, maxLoan }: { dbr: number | null; ltv:
 interface DocumentsTabProps {
   client: Client
   isTerminal: boolean
-  onUploadFiles: (files: FileList) => void
+  onUploadDocument: (type: DocumentType, file: File) => void
   onPreviewDoc: (doc: { url: string; title: string }) => void
   onDeleteDocument?: (documentId: number) => void
 }
 
-function DocumentsTab({ client, isTerminal, onUploadFiles, onPreviewDoc, onDeleteDocument }: DocumentsTabProps) {
+function DocumentsTab({ client, isTerminal, onUploadDocument, onPreviewDoc, onDeleteDocument }: DocumentsTabProps) {
   return (
     <SidePanelContent className="space-y-2">
-      {!isTerminal && (
-        <div className="mb-4">
-          <label className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors border-2 border-dashed border-blue-200 dark:border-blue-800">
-            <Upload className="w-5 h-5" />
-            <span className="text-sm font-medium">Upload Documents</span>
-            <input
-              type="file"
-              multiple
-              accept=".pdf,.jpg,.jpeg,.png"
-              className="hidden"
-              onChange={(e) => {
-                if (e.target.files) {
-                  onUploadFiles(e.target.files)
-                  e.target.value = ''
-                }
-              }}
-            />
-          </label>
-          <div className="mt-3 p-3 bg-slate-100 dark:bg-slate-700 rounded-lg">
-            <p className="text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">Name files as:</p>
-            <div className="grid grid-cols-2 gap-1 text-xs text-slate-500 dark:text-slate-400">
-              <span>• passport.pdf</span>
-              <span>• eid.pdf</span>
-              <span>• visa.pdf</span>
-              <span>• salary.pdf</span>
-              <span>• payslip.pdf</span>
-              <span>• statement.pdf</span>
-            </div>
-          </div>
-        </div>
-      )}
-
       <DocumentList
         documents={client.documents as DocumentItem[]}
         labels={DOCUMENT_LABELS}
@@ -610,6 +604,8 @@ function DocumentsTab({ client, isTerminal, onUploadFiles, onPreviewDoc, onDelet
           }
         }}
         onDelete={onDeleteDocument}
+        onUpload={(type, file) => onUploadDocument(type as DocumentType, file)}
+        allowUpload={!isTerminal}
       />
     </SidePanelContent>
   )
@@ -641,32 +637,32 @@ function ActivityTab({ client }: { client: Client }) {
                 ? <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                 : <XCircle className="w-4 h-4 text-red-500 mt-0.5" />
             )}
-            {activity.type === 'created' && <div className="w-4 h-4 rounded-full bg-slate-300 dark:bg-slate-600 mt-0.5" />}
+            {activity.type === 'created' && <div className="w-4 h-4 rounded-full bg-slate-300 mt-0.5" />}
           </div>
           <div className="flex-1">
             {activity.type === 'call' && (
               <>
-                <p className="text-sm text-slate-900 dark:text-white">Call - {activity.data.outcome}</p>
-                {activity.data.notes && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{activity.data.notes}</p>}
+                <p className="text-sm text-slate-900">Call - {activity.data.outcome}</p>
+                {activity.data.notes && <p className="text-xs text-slate-500 mt-1">{activity.data.notes}</p>}
               </>
             )}
-            {activity.type === 'note' && <p className="text-sm text-slate-900 dark:text-white">{activity.data.content}</p>}
+            {activity.type === 'note' && <p className="text-sm text-slate-900">{activity.data.content}</p>}
             {activity.type === 'status' && (
               <>
-                <p className="text-sm text-slate-900 dark:text-white">
+                <p className="text-sm text-slate-900">
                   {activity.data.type === 'converted_from_lead' ? 'Converted from lead' :
                    activity.data.type === 'converted_to_case' ? 'Converted to case' :
                    activity.data.type === 'not_eligible' || activity.data.type === 'notEligible' ? 'Marked not eligible' :
-                   activity.data.type === 'not_proceeding' || activity.data.type === 'notProceeding' ? 'Marked not proceeding' :
+                   activity.data.type === 'not_proceeding' || activity.data.type === 'notProceeding' ? 'Marked withdrawn' :
                    activity.data.type}
                 </p>
                 {activity.data.notes && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{activity.data.notes}</p>
+                  <p className="text-xs text-slate-500 mt-1">{activity.data.notes}</p>
                 )}
               </>
             )}
-            {activity.type === 'created' && <p className="text-sm text-slate-900 dark:text-white">Client created</p>}
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+            {activity.type === 'created' && <p className="text-sm text-slate-900">Client created</p>}
+            <p className="text-xs text-slate-400 mt-1">
               {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
             </p>
           </div>
@@ -682,19 +678,19 @@ function DocumentPreview({ url, title, onClose }: { url: string; title: string; 
   return (
     <div className="fixed inset-0 z-[60]">
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      <div className="absolute top-0 right-0 h-full w-[420px] bg-white dark:bg-slate-800 shadow-2xl flex flex-col">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex-shrink-0">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white truncate">{title}</h3>
+      <div className="absolute top-0 right-0 h-full w-1/2 bg-white shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 flex-shrink-0">
+          <h3 className="text-lg font-semibold text-slate-900 truncate">{title}</h3>
           <div className="flex items-center gap-1 flex-shrink-0">
-            <a href={url} target="_blank" rel="noopener noreferrer" className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors" title="Open in new tab">
+            <a href={url} target="_blank" rel="noopener noreferrer" className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Open in new tab">
               <ExternalLink className="w-5 h-5" />
             </a>
-            <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors" title="Close">
+            <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" title="Close">
               <X className="w-5 h-5" />
             </button>
           </div>
         </div>
-        <div className="flex-1 overflow-auto bg-slate-100 dark:bg-slate-900">
+        <div className="flex-1 overflow-auto bg-slate-100">
           {isPdf ? (
             <iframe src={url} className="w-full h-full" title={title} />
           ) : (

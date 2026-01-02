@@ -88,10 +88,10 @@ function SourceSection({ sourceId, sourceName, trustLevel, onEditSource, onDelet
 
   return (
     <div className="mb-6">
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 divide-y divide-slate-100 dark:divide-slate-700">
+      <div className="bg-white rounded-lg border border-slate-200 divide-y divide-slate-100">
         {/* Source header row */}
-        <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50">
-          <span className="text-sm font-medium text-slate-900 dark:text-white">{sourceName}</span>
+        <div className="flex items-center justify-between p-3 bg-slate-50">
+          <span className="text-sm font-medium text-slate-900">{sourceName}</span>
           <div className="flex items-center gap-2">
             <button onClick={onEditSource} className="p-1 text-slate-400 hover:text-slate-600"><Pencil className="w-3.5 h-3.5" /></button>
             <button onClick={onDeleteSource} className="p-1 text-slate-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -109,14 +109,14 @@ function SourceSection({ sourceId, sourceName, trustLevel, onEditSource, onDelet
                   onChange={(e) => setEditName(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleEdit(sub.id)}
                   autoFocus
-                  className="flex-1 px-2 py-1 text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800"
+                  className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded bg-white"
                 />
                 <button onClick={() => handleEdit(sub.id)} className="text-emerald-600"><Check className="w-4 h-4" /></button>
                 <button onClick={() => setEditingId(null)} className="text-slate-400"><X className="w-4 h-4" /></button>
               </div>
             ) : (
               <>
-                <span className="text-sm text-slate-700 dark:text-slate-300">{sub.name}</span>
+                <span className="text-sm text-slate-700">{sub.name}</span>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -130,7 +130,7 @@ function SourceSection({ sourceId, sourceName, trustLevel, onEditSource, onDelet
                       })
                     }}
                     placeholder="SLA(mins)"
-                    className="w-20 px-2 py-0.5 text-xs border border-slate-200 dark:border-slate-600 rounded bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-20 px-2 py-0.5 text-xs border border-slate-200 rounded bg-slate-50 text-slate-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                   <button
                     onClick={() => updateSubSource.mutate({ id: sub.id, data: { status: cycleStatus(sub.status) } })}
@@ -154,7 +154,7 @@ function SourceSection({ sourceId, sourceName, trustLevel, onEditSource, onDelet
               onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
               placeholder="Sub-source name"
               autoFocus
-              className="flex-1 px-2 py-1 text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800"
+              className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded bg-white"
             />
             <button onClick={handleAdd} className="text-emerald-600"><Check className="w-4 h-4" /></button>
             <button onClick={() => { setIsAdding(false); setNewName('') }} className="text-slate-400"><X className="w-4 h-4" /></button>
@@ -205,7 +205,7 @@ export function ChannelDetailPage() {
         <ChevronLeft className="w-4 h-4" /> Channels
       </button>
 
-      <h1 className="text-xl font-semibold text-slate-900 dark:text-white">{channel.name}</h1>
+      <h1 className="text-xl font-semibold text-slate-900">{channel.name}</h1>
       <p className="text-sm text-slate-500 mb-6">{channel.description}</p>
 
       <>
@@ -219,7 +219,7 @@ export function ChannelDetailPage() {
                     onChange={(e) => setEditSourceName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleEditSource(source.id)}
                     autoFocus
-                    className="flex-1 px-2 py-1 text-sm font-medium border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800"
+                    className="flex-1 px-2 py-1 text-sm font-medium border border-slate-300 rounded bg-white"
                   />
                   <button onClick={() => handleEditSource(source.id)} className="text-emerald-600"><Check className="w-4 h-4" /></button>
                   <button onClick={() => setEditingSourceId(null)} className="text-slate-400"><X className="w-4 h-4" /></button>
@@ -236,8 +236,8 @@ export function ChannelDetailPage() {
               />
             ) : (
               <div key={source.id} className="mb-6">
-                <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-3 flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-900 dark:text-white">{source.name}</span>
+                <div className="bg-white rounded-lg border border-slate-200 p-3 flex items-center justify-between">
+                  <span className="text-sm font-medium text-slate-900">{source.name}</span>
                   <div className="flex items-center gap-2">
                     <button onClick={() => { setEditingSourceId(source.id); setEditSourceName(source.name) }} className="p-1 text-slate-400 hover:text-slate-600"><Pencil className="w-3.5 h-3.5" /></button>
                     <button onClick={() => deleteSource.mutate(source.id)} className="p-1 text-slate-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
@@ -256,7 +256,7 @@ export function ChannelDetailPage() {
                 onKeyDown={(e) => e.key === 'Enter' && handleAddSource()}
                 placeholder="Source name"
                 autoFocus
-                className="flex-1 px-2 py-1 text-sm border border-slate-300 dark:border-slate-600 rounded bg-white dark:bg-slate-800"
+                className="flex-1 px-2 py-1 text-sm border border-slate-300 rounded bg-white"
               />
               <button onClick={handleAddSource} className="text-emerald-600"><Check className="w-4 h-4" /></button>
               <button onClick={() => { setIsAddingSource(false); setNewSourceName('') }} className="text-slate-400"><X className="w-4 h-4" /></button>

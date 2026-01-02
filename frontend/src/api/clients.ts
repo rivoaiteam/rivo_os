@@ -4,18 +4,21 @@
 
 import api from './client'
 import type { Client, ClientListItem, ClientFilters, CallOutcome, DocumentType, CreateCaseData } from '@/types/clients'
+import type { PaginatedResponse, PaginationParams } from '@/types/common'
 
 export const clientsApi = {
-  // Get all clients with optional filters (minimal list data)
-  async list(filters?: ClientFilters): Promise<ClientListItem[]> {
+  // Get paginated clients with optional filters
+  async list(filters?: ClientFilters & PaginationParams): Promise<PaginatedResponse<ClientListItem>> {
     const params = new URLSearchParams()
     if (filters?.status) params.append('status', filters.status)
     if (filters?.eligibility) params.append('eligibility', filters.eligibility)
     if (filters?.campaign) params.append('campaign', filters.campaign)
     if (filters?.channel) params.append('channel', filters.channel)
     if (filters?.search) params.append('search', filters.search)
+    if (filters?.page) params.append('page', filters.page.toString())
+    if (filters?.pageSize) params.append('page_size', filters.pageSize.toString())
 
-    const response = await api.get<ClientListItem[]>(`/clients/?${params.toString()}`)
+    const response = await api.get<PaginatedResponse<ClientListItem>>(`/clients/?${params.toString()}`)
     return response.data
   },
 
@@ -81,7 +84,7 @@ export const clientsApi = {
     await api.post(`/clients/${clientId}/delete_document/${documentId}/`)
   },
 
-  // Mark not proceeding
+  // Mark withdrawn
   async markNotProceeding(id: number, notes?: string): Promise<Client> {
     const response = await api.post<Client>(`/clients/${id}/mark_not_proceeding/`, { notes })
     return response.data

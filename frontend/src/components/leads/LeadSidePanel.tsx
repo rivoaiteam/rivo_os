@@ -148,7 +148,7 @@ export function LeadSidePanel({
               {!isEditing && !isTerminal && (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="absolute top-0 right-0 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  className="absolute top-0 right-0 p-1 rounded hover:bg-slate-100 transition-colors"
                   title="Edit"
                 >
                   <Pencil className="w-3.5 h-3.5 text-slate-400" />
@@ -156,55 +156,55 @@ export function LeadSidePanel({
               )}
               <div className="grid grid-cols-2 gap-x-3 gap-y-4">
                 <div>
-                  <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">First Name</label>
+                  <label className="block text-xs text-slate-500 mb-1">First Name</label>
                   {isEditing ? (
                     <input
                       type="text"
                       value={getFieldValue('firstName')}
                       onChange={(e) => handleFieldChange('firstName', e.target.value)}
-                      className="w-full px-2 py-1.5 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1.5 text-sm bg-white border border-slate-200 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   ) : (
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">{lead.firstName}</p>
+                    <p className="text-sm font-medium text-slate-900">{lead.firstName}</p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Last Name</label>
+                  <label className="block text-xs text-slate-500 mb-1">Last Name</label>
                   {isEditing ? (
                     <input
                       type="text"
                       value={getFieldValue('lastName')}
                       onChange={(e) => handleFieldChange('lastName', e.target.value)}
-                      className="w-full px-2 py-1.5 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1.5 text-sm bg-white border border-slate-200 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   ) : (
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">{lead.lastName}</p>
+                    <p className="text-sm font-medium text-slate-900">{lead.lastName}</p>
                   )}
                 </div>
                 <div className="col-span-2">
-                  <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Email</label>
+                  <label className="block text-xs text-slate-500 mb-1">Email</label>
                   {isEditing ? (
                     <input
                       type="email"
                       value={getFieldValue('email') || ''}
                       onChange={(e) => handleFieldChange('email', e.target.value)}
-                      className="w-full px-2 py-1.5 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1.5 text-sm bg-white border border-slate-200 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   ) : (
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">{lead.email || '—'}</p>
+                    <p className="text-sm font-medium text-slate-900">{lead.email || '—'}</p>
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Phone</label>
+                  <label className="block text-xs text-slate-500 mb-1">Phone</label>
                   {isEditing ? (
                     <input
                       type="text"
                       value={getFieldValue('phone')}
                       onChange={(e) => handleFieldChange('phone', e.target.value)}
-                      className="w-full px-2 py-1.5 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1.5 text-sm bg-white border border-slate-200 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   ) : (
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">{lead.phone}</p>
+                    <p className="text-sm font-medium text-slate-900">{lead.phone}</p>
                   )}
                 </div>
               </div>
@@ -218,25 +218,25 @@ export function LeadSidePanel({
                   value={getFieldValue('intent')}
                   onChange={(e) => handleFieldChange('intent', e.target.value)}
                   rows={2}
-                  className="w-full px-2 py-1.5 text-sm bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full px-2 py-1.5 text-sm bg-white border border-slate-200 rounded text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               ) : (
-                <p className="text-sm text-slate-700 dark:text-slate-300">"{lead.intent}"</p>
+                <p className="text-sm text-slate-700">"{lead.intent}"</p>
               )}
             </div>
 
             {/* Source Section */}
             <div>
               <SectionHeader>Source</SectionHeader>
-              <p className="text-sm text-slate-700 dark:text-slate-300">{lead.sourceDisplay || '—'}</p>
+              <p className="text-sm text-slate-700">{lead.sourceDisplay || '—'}</p>
             </div>
 
             {/* Transcript Section (for AskRivo leads) */}
             {lead.transcript && (
               <div>
                 <SectionHeader>Transcript</SectionHeader>
-                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3">
-                  <pre className="text-xs text-slate-600 dark:text-slate-400 whitespace-pre-wrap font-sans">{lead.transcript}</pre>
+                <div className="bg-slate-50 rounded-lg p-3">
+                  <pre className="text-xs text-slate-600 whitespace-pre-wrap font-sans">{lead.transcript}</pre>
                 </div>
               </div>
             )}
@@ -244,7 +244,7 @@ export function LeadSidePanel({
 
           {/* Save/Cancel Footer when editing */}
           {isEditing && (
-            <div className="flex-shrink-0 px-6 py-4 bg-white dark:bg-slate-800">
+            <div className="flex-shrink-0 px-6 py-4 bg-white">
               <div className="flex gap-3">
                 <button
                   type="button"
@@ -252,7 +252,7 @@ export function LeadSidePanel({
                     setIsEditing(false)
                     setEditedLead({})
                   }}
-                  className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
+                  className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
@@ -267,10 +267,10 @@ export function LeadSidePanel({
             </div>
           )}
 
-          {/* Dropped status only - converted leads don't show status bar */}
+          {/* Not Eligible status only - converted leads don't show status bar */}
           {isTerminal && !isEditing && (
-            <SidePanelStatus status="neutral">
-              Dropped
+            <SidePanelStatus status="danger">
+              Not Eligible
             </SidePanelStatus>
           )}
         </>

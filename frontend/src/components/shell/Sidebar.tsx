@@ -41,10 +41,10 @@ export function Sidebar({
       `}
     >
       {/* Logo and Collapse toggle at top */}
-      <div className="h-16 px-3 flex items-center gap-3">
+      <div className="h-16 px-3 flex items-center">
         <button
           onClick={() => onCollapsedChange?.(!collapsed)}
-          className="p-2 rounded-lg transition-all text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+          className="p-2 rounded-lg transition-all text-slate-400 hover:text-slate-600 z-10 relative"
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? (
@@ -54,9 +54,11 @@ export function Sidebar({
           )}
         </button>
         {!collapsed && (
-          <span className="text-lg font-semibold tracking-tight text-blue-600 dark:text-blue-400">
-            rivo
-          </span>
+          <img
+            src="/rivo-logo.png"
+            alt="Rivo"
+            className="scale-[1.1] origin-left -ml-12"
+          />
         )}
       </div>
 
@@ -115,7 +117,7 @@ function NavGroup({ label, items, collapsed, onNavigate }: NavGroupProps) {
   return (
     <div>
       {!collapsed && (
-        <p className="px-3 mb-2 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        <p className="px-3 mb-2 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
           {label}
         </p>
       )}

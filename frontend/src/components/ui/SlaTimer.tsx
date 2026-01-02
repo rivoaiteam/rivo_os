@@ -25,14 +25,14 @@ export function SlaTimer({ createdAt, slaMinutes }: SlaTimerProps) {
 
   if (remainingMinutes > 0) {
     return (
-      <span className="text-emerald-600 dark:text-emerald-400">
+      <span className="text-emerald-600">
         {remainingMinutes} min
       </span>
     )
   } else {
     const overdueMinutes = Math.abs(remainingMinutes)
     return (
-      <span className="text-red-600 dark:text-red-400 font-medium">
+      <span className="text-red-600 font-medium">
         {overdueMinutes} min overdue
       </span>
     )
