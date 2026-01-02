@@ -42,7 +42,7 @@ const INPUT_CLASSES = 'w-full px-3 py-2 text-sm bg-white border border-slate-200
 
 const TABS = [
   { id: 'case', label: 'Case' },
-  { id: 'documents', label: 'Documents' },
+  { id: 'documents', label: 'Forms' },
   { id: 'activity', label: 'Activity' },
 ]
 
